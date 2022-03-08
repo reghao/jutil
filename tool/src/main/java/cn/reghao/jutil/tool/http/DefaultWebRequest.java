@@ -1,0 +1,128 @@
+package cn.reghao.jutil.tool.http;
+
+import cn.reghao.jutil.jdk.http.UploadParam;
+import cn.reghao.jutil.jdk.http.WebRequest;
+import cn.reghao.jutil.jdk.http.WebResponse;
+import org.apache.http.NameValuePair;
+import org.apache.http.StatusLine;
+import org.apache.http.client.entity.UrlEncodedFormEntity;
+import org.apache.http.client.methods.*;
+import org.apache.http.entity.StringEntity;
+import org.apache.http.entity.mime.HttpMultipartMode;
+import org.apache.http.entity.mime.MultipartEntityBuilder;
+import org.apache.http.entity.mime.content.FileBody;
+import org.apache.http.entity.mime.content.InputStreamBody;
+import org.apache.http.message.BasicNameValuePair;
+import org.apache.http.util.EntityUtils;
+
+import java.io.File;
+import java.nio.charset.StandardCharsets;
+import java.util.*;
+
+/**
+ * @author reghao
+ * @date 2019-11-29 10:03:18
+ */
+public class DefaultWebRequest extends BaseWebRequest implements WebRequest {
+    private Map<String, String> headers;
+
+    public DefaultWebRequest() {
+        super();
+    }
+
+    public DefaultWebRequest(Map<String, String> headers) {
+        super();
+        this.headers = headers;
+    }
+
+    @Override
+    public int head(String url) {
+        HttpHead head = new HttpHead(url);
+        WebResponse webResponse = execRequest(head);
+        return webResponse.getStatusCode();
+    }
+
+    @Override
+    public WebResponse get(String url) {
+        HttpGet get = new HttpGet(url);
+        return execRequest(get);
+    }
+
+    @Override
+    public WebResponse postFormData(String url, Map<String, String> formData) {
+        List<NameValuePair> params = new ArrayList<>();
+        formData.forEach((k, v) -> {
+            params.add(new BasicNameValuePair(k, v));
+        });
+        UrlEncodedFormEntity urlEncodedFormEntity = new UrlEncodedFormEntity(params, StandardCharsets.UTF_8);
+
+        HttpPost post = new HttpPost(url);
+        if (headers != null) {
+            headers.forEach(post::addHeader);
+        }
+        post.setEntity(urlEncodedFormEntity);
+        return execRequest(post);
+    }
+
+    @Override
+    public WebResponse postJson(String url, String json) {
+        StringEntity entity = new StringEntity(json, StandardCharsets.UTF_8);
+        entity.setContentEncoding("UTF-8");
+
+        HttpPost post = new HttpPost(url);
+        if (headers != null) {
+            headers.forEach(post::addHeader);
+        }
+        post.addHeader("Content-Type", "application/json;charset=UTF-8");
+        post.setEntity(entity);
+        return execRequest(post);
+    }
+
+    @Override
+    public WebResponse upload(String url, UploadParam uploadParam) {
+        String filePath = uploadParam.getFilePath();
+        MultipartEntityBuilder builder = MultipartEntityBuilder.create();
+        builder.setMode(HttpMultipartMode.BROWSER_COMPATIBLE);
+        builder.setCharset(StandardCharsets.UTF_8);
+
+        if (filePath != null) {
+            File file = new File(uploadParam.getFilePath());
+            FileBody fileBody = new FileBody(file, uploadParam.getMimeType());
+            builder.addPart("file", fileBody);
+        } else {
+            InputStreamBody inputStreamBody = new InputStreamBody(uploadParam.getInputStream(), uploadParam.getMimeType());
+            builder.addPart("file", inputStreamBody);
+        }
+
+        Map<String, String> map = uploadParam.getTextParams();
+        if (map != null) {
+            map.forEach(builder::addTextBody);
+        }
+
+        HttpPost post = new HttpPost(url);
+        if (headers != null) {
+            headers.forEach(post::addHeader);
+        }
+        post.setEntity(builder.build());
+        try (CloseableHttpResponse response = client.execute(post)) {
+            int statusCode = response.getStatusLine().getStatusCode();
+            String body = EntityUtils.toString(response.getEntity(), StandardCharsets.UTF_8);;
+            return new WebResponse(statusCode, body);
+        } catch (Exception e) {
+            return new WebResponse(600, e.getMessage());
+        }
+    }
+
+    private WebResponse execRequest(HttpRequestBase request) {
+        try (CloseableHttpResponse response = client.execute(request)) {
+            StatusLine statusLine = response.getStatusLine();
+            int statusCode = statusLine.getStatusCode();
+            //String body = EntityUtils.toString(response.getEntity(), charset);
+            String body = EntityUtils.toString(response.getEntity(), charset);
+            return new WebResponse(statusCode, body);
+        } catch (Exception e) {
+            // TODO 是否应该放在 finally 块中？
+            return new WebResponse(600, e.getMessage());
+        }
+    }
+}
