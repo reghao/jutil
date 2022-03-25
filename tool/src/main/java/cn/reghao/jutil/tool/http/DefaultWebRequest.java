@@ -80,19 +80,13 @@ public class DefaultWebRequest extends BaseWebRequest implements WebRequest {
 
     @Override
     public WebResponse upload(String url, UploadParam uploadParam) {
-        String filePath = uploadParam.getFilePath();
         MultipartEntityBuilder builder = MultipartEntityBuilder.create();
         builder.setMode(HttpMultipartMode.BROWSER_COMPATIBLE);
         builder.setCharset(StandardCharsets.UTF_8);
 
-        if (filePath != null) {
-            File file = new File(uploadParam.getFilePath());
-            FileBody fileBody = new FileBody(file, uploadParam.getMimeType());
-            builder.addPart("file", fileBody);
-        } else {
-            InputStreamBody inputStreamBody = new InputStreamBody(uploadParam.getInputStream(), uploadParam.getMimeType());
-            builder.addPart("file", inputStreamBody);
-        }
+        File file = uploadParam.getFile();
+        FileBody fileBody = new FileBody(file, uploadParam.getMimeType());
+        builder.addPart("file", fileBody);
 
         Map<String, String> map = uploadParam.getTextParams();
         if (map != null) {

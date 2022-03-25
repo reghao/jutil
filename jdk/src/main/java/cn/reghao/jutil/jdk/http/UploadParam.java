@@ -1,6 +1,6 @@
 package cn.reghao.jutil.jdk.http;
 
-import java.io.InputStream;
+import java.io.File;
 import java.util.Map;
 
 /**
@@ -8,29 +8,17 @@ import java.util.Map;
  * @date 2021-12-28 13:06:23
  */
 public class UploadParam {
-    private final String filePath;
-    private final InputStream inputStream;
+    private final File file;
     private final String mimeType;
     private Map<String, String> textParams;
 
-    public UploadParam(String filePath, String mimeType) {
-        this.filePath = filePath;
-        this.inputStream = null;
+    public UploadParam(File file, String mimeType) {
+        this.file = file;
         this.mimeType = mimeType;
     }
 
-    public UploadParam(InputStream inputStream, String mimeType) {
-        this.filePath = null;
-        this.inputStream = inputStream;
-        this.mimeType = mimeType;
-    }
-
-    public String getFilePath() {
-        return filePath;
-    }
-
-    public InputStream getInputStream() {
-        return inputStream;
+    public File getFile() {
+        return file;
     }
 
     public String getMimeType() {
