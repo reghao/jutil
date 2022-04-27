@@ -1,5 +1,6 @@
 package cn.reghao.jutil.jdk.http;
 
+import java.io.IOException;
 import java.net.URI;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
@@ -64,5 +65,9 @@ public class WebClient implements WebRequest {
     @Override
     public WebResponse upload(String url, UploadParam uploadParam) {
         return null;
+    }
+
+    @Override
+    public void download(String url, String dir) throws IOException {
     }
 }

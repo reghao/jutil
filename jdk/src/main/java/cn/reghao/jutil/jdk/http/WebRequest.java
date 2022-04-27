@@ -1,5 +1,6 @@
 package cn.reghao.jutil.jdk.http;
 
+import java.io.IOException;
 import java.util.Map;
 
 /**
@@ -14,4 +15,5 @@ public interface WebRequest {
     WebResponse postFormData(String url, Map<String, String> formData);
     WebResponse postJson(String url, String json);
     WebResponse upload(String url, UploadParam uploadParam);
+    void download(String url, String filePath) throws IOException;
 }

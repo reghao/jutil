@@ -3,6 +3,8 @@ package cn.reghao.jutil.tool.http;
 import cn.reghao.jutil.jdk.http.UploadParam;
 import cn.reghao.jutil.jdk.http.WebRequest;
 import cn.reghao.jutil.jdk.http.WebResponse;
+import cn.reghao.jutil.jdk.http.util.UserAgents;
+import org.apache.http.HttpEntity;
 import org.apache.http.NameValuePair;
 import org.apache.http.StatusLine;
 import org.apache.http.client.entity.UrlEncodedFormEntity;
@@ -11,11 +13,12 @@ import org.apache.http.entity.StringEntity;
 import org.apache.http.entity.mime.HttpMultipartMode;
 import org.apache.http.entity.mime.MultipartEntityBuilder;
 import org.apache.http.entity.mime.content.FileBody;
-import org.apache.http.entity.mime.content.InputStreamBody;
 import org.apache.http.message.BasicNameValuePair;
 import org.apache.http.util.EntityUtils;
 
 import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.util.*;
 
@@ -108,6 +111,7 @@ public class DefaultWebRequest extends BaseWebRequest implements WebRequest {
     }
 
     private WebResponse execRequest(HttpRequestBase request) {
+        request.setHeader("User-Agent", UserAgents.getDesktopAgent());
         try (CloseableHttpResponse response = client.execute(request)) {
             StatusLine statusLine = response.getStatusLine();
             int statusCode = statusLine.getStatusCode();
@@ -117,6 +121,25 @@ public class DefaultWebRequest extends BaseWebRequest implements WebRequest {
         } catch (Exception e) {
             // TODO 是否应该放在 finally 块中？
             return new WebResponse(600, e.getMessage());
+        }
+    }
+
+    public void download(String url, String filePath) throws IOException {
+        HttpGet get = new HttpGet(url);
+        get.setHeader("User-Agent", UserAgents.getDesktopAgent());
+        long start = System.currentTimeMillis();
+        try (CloseableHttpResponse response = client.execute(get)) {
+            int statusCode = response.getStatusLine().getStatusCode();
+            if (statusCode == 200) {
+                HttpEntity httpEntity = response.getEntity();
+                String contentType = httpEntity.getContentType().getValue();
+                File file = new File(filePath);
+                FileOutputStream fout = new FileOutputStream(file);
+                // 持续写到本地文件，直到服务器没有数据
+                httpEntity.writeTo(fout);
+            }
+        } catch (IOException e) {
+            throw e;
         }
     }
 }

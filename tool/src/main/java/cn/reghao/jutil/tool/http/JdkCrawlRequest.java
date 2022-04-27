@@ -1,6 +1,7 @@
 package cn.reghao.jutil.tool.http;
 
 import cn.reghao.jutil.jdk.http.WebResponse;
+import cn.reghao.jutil.jdk.http.util.UrlFormatter;
 import cn.reghao.jutil.jdk.http.util.UserAgents;
 import org.apache.commons.io.FileUtils;
 
@@ -63,21 +64,20 @@ public class JdkCrawlRequest {
         }
     }
 
-    public boolean download(String url, File file) {
+    public void download(String url, String dir) throws IOException, InterruptedException {
         HttpRequest.Builder builder = HttpRequest.newBuilder()
                 .uri(URI.create(url))
                 .timeout(Duration.ofSeconds(30))
                 .GET();
         builder.setHeader("User-Agent", UserAgents.getDesktopAgent());
-
         try {
             HttpResponse<InputStream> in = client.send(builder.build(), HttpResponse.BodyHandlers.ofInputStream());
+            String filename = UrlFormatter.getFilename(url);
+            File file = new File(dir + File.separator + filename);
             saveFile(in.body(), file);
-            return true;
         } catch (Exception e) {
-            log.info(MessageFormat.format("{0} 下载失败 -> {1}", url, e.getMessage()));
+            throw e;
         }
-        return false;
     }
 
     private void saveFile(InputStream in, File file) throws IOException {
