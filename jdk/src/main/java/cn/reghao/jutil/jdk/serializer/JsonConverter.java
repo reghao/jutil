@@ -5,8 +5,9 @@ import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonParser;
+import com.google.gson.stream.JsonReader;
 
-import java.io.File;
+import java.io.*;
 import java.lang.reflect.Type;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -56,6 +57,16 @@ public class JsonConverter {
      */
     public static <T> T jsonToObject(String json, Type type) {
         return gson.fromJson(json, type);
+    }
+
+    public static <T> T jsonFileToObject(File jsonFile, Type type) {
+        try {
+            JsonReader reader = gson.newJsonReader(new InputStreamReader(new FileInputStream(jsonFile)));
+            return gson.fromJson(reader, type);
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+        }
+        return null;
     }
 
     public static <T> List<T> jsonToObjects(String json, Class<T> clazz) {
