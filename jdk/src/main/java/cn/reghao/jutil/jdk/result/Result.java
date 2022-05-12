@@ -1,5 +1,7 @@
 package cn.reghao.jutil.jdk.result;
 
+import java.io.Serializable;
+
 import static cn.reghao.jutil.jdk.result.ResultStatus.*;
 
 
@@ -9,7 +11,9 @@ import static cn.reghao.jutil.jdk.result.ResultStatus.*;
  * @author reghao
  * @date 2021-05-21 16:25:02
  */
-public class Result {
+public class Result implements Serializable {
+    private static final long serialVersionUID = 1L;
+
     private int code;
     private String msg;
 
