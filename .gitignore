@@ -1,7 +1,6 @@
-*.iml
-
 .idea/
-
-tool/target/
-
-jdk/target/
+*.iml
+*target*/
+*logs*/
+*.jar
+*git.properties*

@@ -16,13 +16,12 @@ public class MachineIdLinux implements MachineId {
 
     @Override
     public String id() {
-        String noMachineId = "no-machine-id";
-        if (!machineId.isBlank() && !machineId.equals(noMachineId)) {
+        if (!machineId.isBlank()) {
             return machineId;
         }
 
-        File file = new File("/etc/machine-id");
         try {
+            File file = new File("/etc/machine-id");
             BufferedReader in =  new BufferedReader(new InputStreamReader(new FileInputStream(file)));
             machineId = in.readLine();
             in.close();
@@ -30,7 +29,7 @@ public class MachineIdLinux implements MachineId {
             e.printStackTrace();
         }
 
-        return machineId.isBlank() ? noMachineId : machineId;
+        return machineId.isBlank() ? "no-machine-id" : machineId;
     }
 
     @Override

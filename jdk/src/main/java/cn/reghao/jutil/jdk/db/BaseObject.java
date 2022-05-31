@@ -9,6 +9,7 @@ import java.time.LocalDateTime;
  */
 public class BaseObject<T> implements Serializable {
     private static final long serialVersionUID = 1L;
+
     protected T id;
     // 逻辑删除
     private Boolean deleted;

@@ -8,7 +8,7 @@ import java.util.UUID;
  * @date 2019-08-20 23:45:06
  */
 public class ShellExecutor {
-    private final ProcessBuilder pb = new ProcessBuilder();;
+    private final ProcessBuilder pb = new ProcessBuilder();
 
     /**
      * 传入单个命令和其参数
