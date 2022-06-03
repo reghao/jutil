@@ -28,13 +28,13 @@
     </dependencies>
 
     <distributionManagement>
-         <repository>
+        <!-- <repository>
             <id>local-maven</id>
             <url>http://nexus.alpha.iquizoo.com/repository/maven-local/</url>
-        </repository>
-        <!--<repository>
+        </repository>-->
+        <repository>
             <id>tnb-maven-local</id>
             <url>http://nexus.reghao.cn/repository/tnb-maven-local/</url>
-        </repository>-->
+        </repository>
     </distributionManagement>
 </project>

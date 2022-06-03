@@ -13,14 +13,11 @@ public class BaseObject<T> implements Serializable {
     protected T id;
     // 逻辑删除
     private Boolean deleted;
-    @Deprecated
-    private Boolean isDelete;
     protected LocalDateTime createTime;
     protected LocalDateTime updateTime;
 
     public BaseObject() {
         this.deleted = false;
-        this.isDelete = false;
         LocalDateTime now = LocalDateTime.now();
         this.createTime = now;
         this.updateTime = now;
@@ -40,14 +37,6 @@ public class BaseObject<T> implements Serializable {
 
     public void setDeleted(Boolean deleted) {
         this.deleted = deleted;
-    }
-
-    public Boolean getDelete() {
-        return isDelete;
-    }
-
-    public void setDelete(Boolean delete) {
-        isDelete = delete;
     }
 
     public LocalDateTime getCreateTime() {
