@@ -12,6 +12,7 @@
         <module>jdk</module>
         <module>tool</module>
         <module>redis</module>
+        <module>web</module>
     </modules>
 
     <properties>
