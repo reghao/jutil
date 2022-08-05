@@ -105,17 +105,11 @@ public class DateTimeConverter {
         return instant.atZone(ZoneId.of("Asia/Shanghai")).toLocalDateTime();
     }
 
-    public static LocalDateTime localDateTime2(String dateTime) {
+    public static LocalDateTime localDateTime2(String dateTime) throws ParseException {
         SimpleDateFormat dateFormat = new SimpleDateFormat(dateTimePattern);
-        try {
-            Date date = dateFormat.parse(dateTime);
-            Instant instant = date.toInstant();
-            return instant.atZone(ZoneId.of("Asia/Shanghai")).toLocalDateTime();
-        } catch (ParseException e) {
-            e.printStackTrace();
-        }
-
-        return LocalDateTime.now();
+        Date date = dateFormat.parse(dateTime);
+        Instant instant = date.toInstant();
+        return instant.atZone(ZoneId.of("Asia/Shanghai")).toLocalDateTime();
     }
 
     /**
