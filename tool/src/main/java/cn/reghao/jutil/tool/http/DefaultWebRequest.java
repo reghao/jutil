@@ -12,6 +12,8 @@ import org.apache.http.client.methods.*;
 import org.apache.http.entity.StringEntity;
 import org.apache.http.entity.mime.HttpMultipartMode;
 import org.apache.http.entity.mime.MultipartEntityBuilder;
+import org.apache.http.entity.mime.content.ByteArrayBody;
+import org.apache.http.entity.mime.content.ContentBody;
 import org.apache.http.entity.mime.content.FileBody;
 import org.apache.http.message.BasicNameValuePair;
 import org.apache.http.util.EntityUtils;
@@ -87,9 +89,45 @@ public class DefaultWebRequest extends BaseWebRequest implements WebRequest {
         builder.setMode(HttpMultipartMode.BROWSER_COMPATIBLE);
         builder.setCharset(StandardCharsets.UTF_8);
 
-        File file = uploadParam.getFile();
-        FileBody fileBody = new FileBody(file, uploadParam.getMimeType());
-        builder.addPart("file", fileBody);
+        ContentBody contentBody;
+        if (uploadParam.getFile() != null) {
+            contentBody = new FileBody(uploadParam.getFile(), uploadParam.getMimeType());
+        } else if (uploadParam.getBytes() != null) {
+            contentBody = new ByteArrayBody(uploadParam.getBytes(), uploadParam.getMimeType());
+        } else {
+            return new WebResponse(600, "not data in UploadParam");
+        }
+
+        /*File file = uploadParam.getFile();
+        FileBody fileBody = new FileBody(file, uploadParam.getMimeType());*/
+        builder.addPart("file", contentBody);
+        Map<String, String> map = uploadParam.getTextParams();
+        if (map != null) {
+            map.forEach(builder::addTextBody);
+        }
+
+        HttpPost post = new HttpPost(url);
+        if (headers != null) {
+            headers.forEach(post::addHeader);
+        }
+        post.setEntity(builder.build());
+        try (CloseableHttpResponse response = client.execute(post)) {
+            int statusCode = response.getStatusLine().getStatusCode();
+            String body = EntityUtils.toString(response.getEntity(), StandardCharsets.UTF_8);;
+            return new WebResponse(statusCode, body);
+        } catch (Exception e) {
+            return new WebResponse(600, e.getMessage());
+        }
+    }
+
+    public WebResponse upload1(String url, UploadParam uploadParam) {
+        MultipartEntityBuilder builder = MultipartEntityBuilder.create();
+        builder.setMode(HttpMultipartMode.BROWSER_COMPATIBLE);
+        builder.setCharset(StandardCharsets.UTF_8);
+
+        byte[] bytes = uploadParam.getBytes();
+        ByteArrayBody byteArrayBody = new ByteArrayBody(bytes, uploadParam.getMimeType());
+        builder.addPart("file", byteArrayBody);
 
         Map<String, String> map = uploadParam.getTextParams();
         if (map != null) {

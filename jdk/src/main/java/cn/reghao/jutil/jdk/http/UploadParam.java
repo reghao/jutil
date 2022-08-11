@@ -8,7 +8,8 @@ import java.util.Map;
  * @date 2021-12-28 13:06:23
  */
 public class UploadParam {
-    private final File file;
+    private File file;
+    private byte[] bytes;
     private final String mimeType;
     private Map<String, String> textParams;
 
@@ -17,8 +18,17 @@ public class UploadParam {
         this.mimeType = mimeType;
     }
 
+    public UploadParam(byte[] bytes, String mimeType) {
+        this.bytes = bytes;
+        this.mimeType = mimeType;
+    }
+
     public File getFile() {
         return file;
+    }
+
+    public byte[] getBytes() {
+        return bytes;
     }
 
     public String getMimeType() {

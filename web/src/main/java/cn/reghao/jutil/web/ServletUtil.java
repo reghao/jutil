@@ -22,7 +22,7 @@ public class ServletUtil {
             return Long.parseLong(userId);
         }
 
-        return 0L;
+        return -1L;
     }
 
     public static HttpSession getSession() {
