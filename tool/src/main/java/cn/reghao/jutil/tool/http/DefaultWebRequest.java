@@ -98,37 +98,7 @@ public class DefaultWebRequest extends BaseWebRequest implements WebRequest {
             return new WebResponse(600, "not data in UploadParam");
         }
 
-        /*File file = uploadParam.getFile();
-        FileBody fileBody = new FileBody(file, uploadParam.getMimeType());*/
         builder.addPart("file", contentBody);
-        Map<String, String> map = uploadParam.getTextParams();
-        if (map != null) {
-            map.forEach(builder::addTextBody);
-        }
-
-        HttpPost post = new HttpPost(url);
-        if (headers != null) {
-            headers.forEach(post::addHeader);
-        }
-        post.setEntity(builder.build());
-        try (CloseableHttpResponse response = client.execute(post)) {
-            int statusCode = response.getStatusLine().getStatusCode();
-            String body = EntityUtils.toString(response.getEntity(), StandardCharsets.UTF_8);;
-            return new WebResponse(statusCode, body);
-        } catch (Exception e) {
-            return new WebResponse(600, e.getMessage());
-        }
-    }
-
-    public WebResponse upload1(String url, UploadParam uploadParam) {
-        MultipartEntityBuilder builder = MultipartEntityBuilder.create();
-        builder.setMode(HttpMultipartMode.BROWSER_COMPATIBLE);
-        builder.setCharset(StandardCharsets.UTF_8);
-
-        byte[] bytes = uploadParam.getBytes();
-        ByteArrayBody byteArrayBody = new ByteArrayBody(bytes, uploadParam.getMimeType());
-        builder.addPart("file", byteArrayBody);
-
         Map<String, String> map = uploadParam.getTextParams();
         if (map != null) {
             map.forEach(builder::addTextBody);
