@@ -69,12 +69,42 @@ public class DefaultWebRequest extends BaseWebRequest implements WebRequest {
         return execRequest(post);
     }
 
+    public WebResponse postFormData1(String url, Map<String, String> formData, String token) {
+        List<NameValuePair> params = new ArrayList<>();
+        formData.forEach((k, v) -> {
+            params.add(new BasicNameValuePair(k, v));
+        });
+        UrlEncodedFormEntity urlEncodedFormEntity = new UrlEncodedFormEntity(params, StandardCharsets.UTF_8);
+
+        HttpPost post = new HttpPost(url);
+        post.addHeader("Authorization", "Bearer " + token);
+        if (headers != null) {
+            headers.forEach(post::addHeader);
+        }
+        post.setEntity(urlEncodedFormEntity);
+        return execRequest(post);
+    }
+
     @Override
     public WebResponse postJson(String url, String json) {
         StringEntity entity = new StringEntity(json, StandardCharsets.UTF_8);
         entity.setContentEncoding("UTF-8");
 
         HttpPost post = new HttpPost(url);
+        if (headers != null) {
+            headers.forEach(post::addHeader);
+        }
+        post.addHeader("Content-Type", "application/json;charset=UTF-8");
+        post.setEntity(entity);
+        return execRequest(post);
+    }
+
+    public WebResponse postJson1(String url, String json, String token) {
+        StringEntity entity = new StringEntity(json, StandardCharsets.UTF_8);
+        entity.setContentEncoding("UTF-8");
+
+        HttpPost post = new HttpPost(url);
+        post.addHeader("Authorization", "Bearer " + token);
         if (headers != null) {
             headers.forEach(post::addHeader);
         }
@@ -105,6 +135,41 @@ public class DefaultWebRequest extends BaseWebRequest implements WebRequest {
         }
 
         HttpPost post = new HttpPost(url);
+        if (headers != null) {
+            headers.forEach(post::addHeader);
+        }
+        post.setEntity(builder.build());
+        try (CloseableHttpResponse response = client.execute(post)) {
+            int statusCode = response.getStatusLine().getStatusCode();
+            String body = EntityUtils.toString(response.getEntity(), StandardCharsets.UTF_8);;
+            return new WebResponse(statusCode, body);
+        } catch (Exception e) {
+            return new WebResponse(600, e.getMessage());
+        }
+    }
+
+    public WebResponse upload1(String url, UploadParam uploadParam, String token) {
+        MultipartEntityBuilder builder = MultipartEntityBuilder.create();
+        builder.setMode(HttpMultipartMode.BROWSER_COMPATIBLE);
+        builder.setCharset(StandardCharsets.UTF_8);
+
+        ContentBody contentBody;
+        if (uploadParam.getFile() != null) {
+            contentBody = new FileBody(uploadParam.getFile(), uploadParam.getMimeType());
+        } else if (uploadParam.getBytes() != null) {
+            contentBody = new ByteArrayBody(uploadParam.getBytes(), uploadParam.getMimeType());
+        } else {
+            return new WebResponse(600, "not data in UploadParam");
+        }
+
+        builder.addPart("file", contentBody);
+        Map<String, String> map = uploadParam.getTextParams();
+        if (map != null) {
+            map.forEach(builder::addTextBody);
+        }
+
+        HttpPost post = new HttpPost(url);
+        post.addHeader("Authorization", "Bearer " + token);
         if (headers != null) {
             headers.forEach(post::addHeader);
         }
