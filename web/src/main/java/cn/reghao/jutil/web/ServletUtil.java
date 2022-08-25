@@ -16,13 +16,9 @@ import java.io.IOException;
  * @date 2021-06-02 13:16:58
  */
 public class ServletUtil {
-    public static Long getUserId() {
+    public static String getUserId() {
         String userId = getRequest().getHeader("x-user-id");
-        if (userId != null) {
-            return Long.parseLong(userId);
-        }
-
-        return -1L;
+        return  userId != null ? userId : "-1";
     }
 
     public static HttpSession getSession() {
