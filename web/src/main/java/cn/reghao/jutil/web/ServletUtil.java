@@ -17,7 +17,11 @@ import java.io.IOException;
  */
 public class ServletUtil {
     public static String getJwtToken() {
-        return getRequest().getHeader("Authorization");
+        String auth = getRequest().getHeader("Authorization");
+        if (auth == null) {
+            return null;
+        }
+        return auth.replace("Bearer ", "");
     }
 
     public static String getUserId() {
