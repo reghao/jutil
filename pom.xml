@@ -30,8 +30,8 @@
 
     <distributionManagement>
         <repository>
-            <id>tnb-maven-local</id>
-            <url>http://nexus.reghao.cn/repository/tnb-maven-local/</url>
+            <id>maven-local-hosted</id>
+            <url>http://nexus.reghao.cn/repository/maven-local-hosted/</url>
         </repository>
     </distributionManagement>
 </project>
