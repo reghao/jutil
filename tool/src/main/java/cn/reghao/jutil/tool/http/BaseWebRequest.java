@@ -106,9 +106,9 @@ public class BaseWebRequest {
      */
     private RequestConfig requestConfig() {
         return RequestConfig.custom()
-                .setConnectionRequestTimeout(60_000)
-                .setConnectTimeout(60_000)
-                .setSocketTimeout(60_000)
+                .setConnectionRequestTimeout(600_000)
+                .setConnectTimeout(600_000)
+                .setSocketTimeout(600_000)
                 .setCookieSpec(CookieSpecs.DEFAULT)
                 .build();
     }
