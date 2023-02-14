@@ -9,18 +9,19 @@ import java.util.Date;
 public class JwtPayload {
     private String userId;
     private String roles;
-    private Date expiration;
+    private Long expireIn;
     private String signKey;
 
     public JwtPayload(String userId, String roles) {
         this.userId = userId;
         this.roles = roles;
+        this.expireIn = System.currentTimeMillis() + 1000*3600*24*7;
     }
 
-    public JwtPayload(String userId, String roles, Date expiration) {
+    public JwtPayload(String userId, String roles, long expireIn) {
         this.userId = userId;
         this.roles = roles;
-        this.expiration = expiration;
+        this.expireIn = expireIn;
     }
 
     public String getUserId() {
@@ -31,8 +32,8 @@ public class JwtPayload {
         return roles;
     }
 
-    public Date getExpiration() {
-        return expiration;
+    public Long getExpireIn() {
+        return expireIn;
     }
 
     public String getSignKey() {

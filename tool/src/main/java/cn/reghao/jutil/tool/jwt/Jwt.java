@@ -32,7 +32,7 @@ public class Jwt {
         return Jwts.builder()
                 .claim("authorities", payload.getRoles())
                 .setSubject(payload.getUserId())
-                .setExpiration(new Date(System.currentTimeMillis() + EXPIRATION_TIME))
+                .setExpiration(new Date(System.currentTimeMillis() + payload.getExpireIn()))
                 .signWith(SignatureAlgorithm.HS256, SIGN_KEY)
                 .compact();
     }
@@ -49,6 +49,6 @@ public class Jwt {
         String username = claims.getSubject();
         String roles = (String) claims.get("authorities");
         Date expiration = claims.getExpiration();
-        return new JwtPayload(username, roles, expiration);
+        return new JwtPayload(username, roles, expiration.getTime());
     }
 }
