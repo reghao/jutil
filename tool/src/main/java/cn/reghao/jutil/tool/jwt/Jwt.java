@@ -8,7 +8,6 @@ import java.util.Date;
 
 /**
  * JWT 令牌
- * TODO 将 JWT 令牌存放在 redis 中
  *
  * @author reghao
  * @date 2019-11-17 23:10:58
@@ -16,10 +15,6 @@ import java.util.Date;
 public class Jwt {
     public static final String JWT_PREFIX = "Bearer ";
     public static final String AUTH_HEADER = "Authorization";
-
-    // TODO 有效期和 key 都应该可以动态设置，有效期一周
-    private static final long EXPIRATION_TIME = 60_000*60*24*7;
-    private static final String SIGN_KEY = "tnb.reghao.cn";
 
     /**
      * 生成一个 token
@@ -32,8 +27,8 @@ public class Jwt {
         return Jwts.builder()
                 .claim("authorities", payload.getRoles())
                 .setSubject(payload.getUserId())
-                .setExpiration(new Date(System.currentTimeMillis() + payload.getExpireIn()))
-                .signWith(SignatureAlgorithm.HS256, SIGN_KEY)
+                .setExpiration(new Date(payload.getExpireIn()))
+                .signWith(SignatureAlgorithm.HS256, payload.getSignKey())
                 .compact();
     }
 
@@ -45,10 +40,18 @@ public class Jwt {
      * @date 2021-07-27 下午2:37
      */
     public static JwtPayload parse(String token) {
-        Claims claims = Jwts.parser().setSigningKey(SIGN_KEY).parseClaimsJws(token).getBody();
+        Claims claims = Jwts.parser().setSigningKey("tnb.cn").parseClaimsJws(token).getBody();
         String username = claims.getSubject();
         String roles = (String) claims.get("authorities");
         Date expiration = claims.getExpiration();
-        return new JwtPayload(username, roles, expiration.getTime());
+        return new JwtPayload(username, roles, expiration.getTime(), "tnb.cn");
+    }
+
+    public static JwtPayload parse(String token, String signKey) {
+        Claims claims = Jwts.parser().setSigningKey(signKey).parseClaimsJws(token).getBody();
+        String username = claims.getSubject();
+        String roles = (String) claims.get("authorities");
+        Date expiration = claims.getExpiration();
+        return new JwtPayload(username, roles, expiration.getTime(), signKey);
     }
 }
