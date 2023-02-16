@@ -25,9 +25,11 @@ public class Jwt {
      */
     public static String create(JwtPayload payload) {
         return Jwts.builder()
+                .claim("loginType", payload.getLoginType())
+                .claim("plat", payload.getPlat())
                 .claim("authorities", payload.getRoles())
                 .setSubject(payload.getUserId())
-                .setExpiration(new Date(payload.getExpireIn()))
+                .setExpiration(new Date(payload.getExpireAt()))
                 .signWith(SignatureAlgorithm.HS256, payload.getSignKey())
                 .compact();
     }
@@ -39,19 +41,13 @@ public class Jwt {
      * @return
      * @date 2021-07-27 下午2:37
      */
-    public static JwtPayload parse(String token) {
-        Claims claims = Jwts.parser().setSigningKey("tnb.cn").parseClaimsJws(token).getBody();
-        String username = claims.getSubject();
-        String roles = (String) claims.get("authorities");
-        Date expiration = claims.getExpiration();
-        return new JwtPayload(username, roles, expiration.getTime(), "tnb.cn");
-    }
-
     public static JwtPayload parse(String token, String signKey) {
         Claims claims = Jwts.parser().setSigningKey(signKey).parseClaimsJws(token).getBody();
         String username = claims.getSubject();
         String roles = (String) claims.get("authorities");
+        Integer loginType = (Integer) claims.get("loginType");
+        Integer plat = (Integer) claims.get("plat");
         Date expiration = claims.getExpiration();
-        return new JwtPayload(username, roles, expiration.getTime(), signKey);
+        return new JwtPayload(loginType, plat, username, roles, expiration.getTime(), signKey);
     }
 }
