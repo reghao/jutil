@@ -7,6 +7,7 @@ import java.util.Base64;
  * @author reghao
  * @date 2019-04-05 12:23:47
  */
+@Deprecated
 public class Salt {
     private static SecureRandom random = new SecureRandom();
 
