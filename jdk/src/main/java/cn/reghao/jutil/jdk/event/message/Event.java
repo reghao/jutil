@@ -1,4 +1,4 @@
-package cn.reghao.jutil.jdk.event;
+package cn.reghao.jutil.jdk.event.message;
 
 /**
  * @author reghao

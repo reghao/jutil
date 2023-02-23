@@ -1,4 +1,4 @@
-package cn.reghao.jutil.jdk.event;
+package cn.reghao.jutil.jdk.event.message;
 
 import java.io.Serializable;
 import java.util.UUID;
@@ -10,8 +10,8 @@ import java.util.UUID;
 public class EventMessage implements Serializable {
     private static final long serialVersionUID = 1L;
 
-    private String msgId;
-    private long sendTime;
+    private final String msgId;
+    private final long sendTime;
     private Event event;
 
     private EventMessage() {
