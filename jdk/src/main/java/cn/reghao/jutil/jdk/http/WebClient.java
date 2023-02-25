@@ -13,11 +13,15 @@ import java.util.Map;
  * @date 2021-10-16 13:30:58
  */
 public class WebClient implements WebRequest {
+    private final HttpClient client = HttpClient.newHttpClient();
+    private final int timeout = 30;
+
     @Override
     public int head(String url) {
-        HttpClient client = HttpClient.newHttpClient();
         HttpRequest request = HttpRequest.newBuilder()
                 .uri(URI.create(url))
+                .version(HttpClient.Version.HTTP_1_1)
+                .GET()
                 .build();
         try {
             HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
@@ -29,10 +33,9 @@ public class WebClient implements WebRequest {
 
     @Override
     public WebResponse get(String url) {
-        HttpClient client = HttpClient.newHttpClient();
         HttpRequest request = HttpRequest.newBuilder()
                 .uri(URI.create(url))
-                .timeout(Duration.ofSeconds(30))
+                .timeout(Duration.ofSeconds(timeout))
                 .build();
         try {
             HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
@@ -49,16 +52,15 @@ public class WebClient implements WebRequest {
 
     @Override
     public WebResponse postJson(String url, String json) {
-        HttpClient httpClient = HttpClient.newHttpClient();
         HttpRequest httpRequest = HttpRequest.newBuilder()
                 .uri(URI.create(url))
                 .header("Content-Type", "application/json")
                 .POST(HttpRequest.BodyPublishers.ofString(json))
-                .timeout(Duration.ofSeconds(30))
+                .timeout(Duration.ofSeconds(timeout))
                 .build();
 
         try {
-            HttpResponse<String> response = httpClient.send(httpRequest, HttpResponse.BodyHandlers.ofString());
+            HttpResponse<String> response = client.send(httpRequest, HttpResponse.BodyHandlers.ofString());
             return WebResponse.of(response);
         } catch (Exception e) {
             return WebResponse.error(e.getMessage());
