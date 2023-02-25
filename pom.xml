@@ -13,6 +13,7 @@
         <module>tool</module>
         <module>redis</module>
         <module>web</module>
+        <module>media</module>
     </modules>
 
     <properties>
