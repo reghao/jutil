@@ -1,4 +1,4 @@
-package cn.reghao.jutil.jdk.striing;
+package cn.reghao.jutil.jdk.string;
 
 import java.util.regex.Pattern;
 
