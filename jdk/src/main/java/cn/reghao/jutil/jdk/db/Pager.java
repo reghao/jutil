@@ -7,6 +7,7 @@ import java.util.List;
  * @author reghao
  * @date 2022-05-31 16:23:04
  */
+@Deprecated
 public class Pager<T> implements Serializable {
     private static final long serialVersionUID = 1L;
 
