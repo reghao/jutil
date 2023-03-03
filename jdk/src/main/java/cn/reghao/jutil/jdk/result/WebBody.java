@@ -9,6 +9,7 @@ import cn.reghao.jutil.jdk.serializer.JsonConverter;
  * @author reghao
  * @date 2019-09-28 10:05:35
  */
+@Deprecated
 public class WebBody {
     private int code;
     private String msg;

@@ -1,5 +1,6 @@
 package cn.reghao.jutil.jdk.result;
 
+import cn.reghao.jutil.jdk.converter.DateTimeConverter;
 import cn.reghao.jutil.jdk.serializer.JsonConverter;
 
 /**
@@ -44,6 +45,11 @@ public class WebResult<T> {
 
     public T getData() {
         return data;
+    }
+
+    public static <T> String result(Result result) {
+        WebResult<T> webBody = new WebResult<>(result.getCode(), result.getMsg());
+        return JsonConverter.objectToJson(webBody);
     }
 
     public static <T> String success() {
