@@ -16,6 +16,11 @@ public class Result implements Serializable {
 
     private int code;
     private String msg;
+    private final long timestamp;
+
+    public Result() {
+        this.timestamp = System.currentTimeMillis();
+    }
 
     public int getCode() {
         return code;
@@ -31,6 +36,10 @@ public class Result implements Serializable {
 
     public void setMsg(String msg) {
         this.msg = msg;
+    }
+
+    public long getTimestamp() {
+        return timestamp;
     }
 
     public static Result result(ResultStatus resultStatus) {
