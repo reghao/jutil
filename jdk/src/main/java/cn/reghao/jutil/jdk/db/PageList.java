@@ -42,8 +42,16 @@ public class PageList<T> {
         this.totalSize = totalSize;
         this.totalPages = totalSize/pageSize + (totalSize%pageSize != 0 ? 1 : 0);
         this.list = list;
-        this.hasNext = (total - pageSize*pageNumber > 0);
+        this.hasNext = (totalSize - pageSize*pageNumber > 0);
+    }
 
+    private PageList(int pageNumber, int pageSize) {
+        this.pageNumber = pageNumber;
+        this.pageSize = pageSize;
+        this.totalSize = 0;
+        this.totalPages = 0;
+        this.list = Collections.emptyList();
+        this.hasNext = false;
     }
 
     public int getPageNumber() {
@@ -70,8 +78,8 @@ public class PageList<T> {
         return list;
     }
 
-    public static <T> PageList<T> empty() {
-        return new PageList<>(1, 0, 0, Collections.emptyList());
+    public static <T> PageList<T> empty(int pageNumber, int pageSize) {
+        return new PageList<>(pageNumber, pageSize);
     }
 
     public static <T> PageList<T> pageList(List<T> list) {

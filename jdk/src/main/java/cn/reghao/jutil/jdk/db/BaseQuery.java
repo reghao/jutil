@@ -13,7 +13,7 @@ public interface BaseQuery<T> {
     }
 
     default PageList<T> findAllByPage(int page, int size) {
-        return PageList.empty();
+        return PageList.empty(page, size);
     }
     default List<T> findAll() {
         return Collections.emptyList();
