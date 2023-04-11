@@ -33,6 +33,17 @@ public class ServletUtil {
         return getRequest().getSession();
     }
 
+    public static String getBody() throws IOException {
+        HttpServletRequest request = getRequest();
+        StringBuffer sb = new StringBuffer();
+        BufferedReader reader = request.getReader();
+        String line;
+        while ((line = reader.readLine()) != null) {
+            sb.append(line);
+        }
+        return sb.toString();
+    }
+
     public static Object getBody(HttpServletRequest servletRequest, Class<?> clazz) throws IOException {
         StringBuilder body = new StringBuilder();
         BufferedReader reader = servletRequest.getReader();
