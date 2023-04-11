@@ -22,6 +22,9 @@ import java.util.*;
  * @date 2021-08-04 09:51:30
  */
 public class VideoOps {
+    static String bash = "/bin/bash";
+    static String ffprobe = "/usr/bin/ffprobe";
+    static String ffmpeg = "/usr/bin/ffmpeg";
     static {
         avutil.av_log_set_level(avutil.AV_LOG_QUIET);
     }
@@ -36,7 +39,6 @@ public class VideoOps {
      * @date 2023-02-06 5:55 AM
      */
     public static Map<String, String> getMetadata(String filePath) throws IOException {
-        VideoOps.videoProps(new File(filePath));
         Map<String, String> metadata = new HashMap<>();
         AVFormatContext fmt_ctx = new AVFormatContext(null);
         AVDictionaryEntry tag = new AVDictionaryEntry(null);

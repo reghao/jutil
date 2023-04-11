@@ -20,24 +20,6 @@ import java.util.List;
  * @date 2021-08-04 16:26:13
  */
 public class ImageOps {
-    public static byte[] convert(File srcFile, String destFormat) {
-        String srcFormat = getFormat(srcFile);
-        if (srcFormat != null && srcFormat.equals(destFormat)) {
-            return new byte[0];
-        }
-
-        try (ImageInputStream iis = ImageIO.createImageInputStream(srcFile)) {
-            BufferedImage image = ImageIO.read(iis);
-            ByteArrayOutputStream baos = new ByteArrayOutputStream();
-            ImageOutputStream ios = ImageIO.createImageOutputStream(baos);
-            ImageIO.write(image, destFormat, ios);
-            return baos.toByteArray();
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-        return new byte[0];
-    }
-
     public static String getFormat(File file) {
         try (ImageInputStream iis = ImageIO.createImageInputStream(file);) {
             Iterator<ImageReader> iterator = ImageIO.getImageReaders(iis);
@@ -50,6 +32,44 @@ public class ImageOps {
         }
 
         return null;
+    }
+
+    public static byte[] convert2jpg(File srcFile) {
+        try (ImageInputStream iis = ImageIO.createImageInputStream(srcFile)) {
+            BufferedImage image = ImageIO.read(iis);
+            ByteArrayOutputStream baos = new ByteArrayOutputStream();
+            ImageOutputStream ios = ImageIO.createImageOutputStream(baos);
+            ImageIO.write(image, "jpg", ios);
+            return baos.toByteArray();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return new byte[0];
+    }
+
+    public static byte[] png2jpg(File srcFile) {
+        try {
+            BufferedImage image = ImageIO.read(srcFile);
+            BufferedImage result = new BufferedImage(
+                    image.getWidth(),
+                    image.getHeight(),
+                    BufferedImage.TYPE_INT_RGB);
+            result.createGraphics().drawImage(image, 0, 0, Color.WHITE, null);
+
+            ByteArrayOutputStream baos = new ByteArrayOutputStream();
+            ImageIO.write(result, "jpg", baos);
+            return baos.toByteArray();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return new byte[0];
+    }
+
+    public static byte[] jpg2webp(byte[] bytes) throws IOException {
+        BufferedImage bi = ImageIO.read(new ByteArrayInputStream(bytes));
+        ByteArrayOutputStream baos = new ByteArrayOutputStream();
+        ImageIO.write(bi, "webp", baos);
+        return baos.toByteArray();
     }
 
     public static Size info(File file) throws IOException {
