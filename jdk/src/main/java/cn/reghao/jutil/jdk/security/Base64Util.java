@@ -10,8 +10,12 @@ import java.util.Base64;
 public class Base64Util {
     private static final Base64.Encoder encoder = Base64.getEncoder();
 
-    public static String encode(String json) {
-        byte[] bytes = json.getBytes(StandardCharsets.UTF_8);
+    public static String encode(String str) {
+        byte[] bytes = str.getBytes(StandardCharsets.UTF_8);
+        return encoder.encodeToString(bytes);
+    }
+
+    public static String encode(byte[] bytes) {
         return encoder.encodeToString(bytes);
     }
 }

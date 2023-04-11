@@ -12,7 +12,13 @@ import java.security.NoSuchAlgorithmException;
  * @date 2022-04-27 16:37:07
  */
 public class DigestUtil {
-    public static String md5sum(byte[] bytes) throws NoSuchAlgorithmException {
+    public static byte[] md5sum(byte[] bytes) throws NoSuchAlgorithmException {
+        MessageDigest messageDigest = MessageDigest.getInstance("MD5");
+        messageDigest.update(bytes);
+        return messageDigest.digest();
+    }
+
+    public static String md5sumStr(byte[] bytes) throws NoSuchAlgorithmException {
         MessageDigest messageDigest = MessageDigest.getInstance("MD5");
         messageDigest.update(bytes);
         return ByteHex.bytes2Hex(messageDigest.digest());
