@@ -83,7 +83,7 @@ public class PageList<T> {
     }
 
     public static <T> PageList<T> pageList(List<T> list) {
-        return new PageList<>(1, 0, 0, Collections.emptyList());
+        return new PageList<>(1, 10, 0, Collections.emptyList());
     }
 
     public static <T> PageList<T> pageList(int pageNumber, int pageSize, int total, List<T> list) {

@@ -69,6 +69,11 @@ public class JsonConverter {
         return null;
     }
 
+    public static <T> T jsonFileToObject(InputStreamReader streamReader, Type type) {
+        JsonReader reader = gson.newJsonReader(streamReader);
+        return gson.fromJson(reader, type);
+    }
+
     public static <T> List<T> jsonToObjects(String json, Class<T> clazz) {
         JsonParser parser = new JsonParser();
         List<T> list = new ArrayList<>();
