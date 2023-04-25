@@ -78,10 +78,16 @@ public class PageList<T> {
         return list;
     }
 
+    @Deprecated
     public static <T> PageList<T> empty(int pageNumber, int pageSize) {
         return new PageList<>(pageNumber, pageSize);
     }
 
+    public static <T> PageList<T> empty() {
+        return new PageList<>(1, 10, 0, Collections.emptyList());
+    }
+
+    @Deprecated
     public static <T> PageList<T> pageList(List<T> list) {
         return new PageList<>(1, 10, 0, Collections.emptyList());
     }

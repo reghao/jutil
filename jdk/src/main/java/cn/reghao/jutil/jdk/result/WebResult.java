@@ -3,6 +3,8 @@ package cn.reghao.jutil.jdk.result;
 import cn.reghao.jutil.jdk.converter.DateTimeConverter;
 import cn.reghao.jutil.jdk.serializer.JsonConverter;
 
+import java.util.UUID;
+
 /**
  * HTTP 响应 body 数据
  *
@@ -20,7 +22,7 @@ public class WebResult<T> {
         this.code = code;
         this.msg = msg;
         this.timestamp = System.currentTimeMillis();
-        this.requestId = "";
+        this.requestId = UUID.randomUUID().toString().replace("-", "");
     }
 
     public int getCode() {
