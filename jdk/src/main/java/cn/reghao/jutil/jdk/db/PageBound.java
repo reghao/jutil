@@ -43,4 +43,20 @@ public class PageBound {
 
         return new PageBound(start, end);
     }
+
+    public static PageBound get(int pageNumber, int pageSize, int total) {
+        if (total == 0) {
+            return new PageBound(0, 0);
+        }
+
+        int totalPages = total/pageSize;
+        int mod = total%pageSize;
+        if (mod != 0) {
+            totalPages += 1;
+        }
+
+        int start = (pageNumber-1)*pageSize;
+        int end = start + pageSize;
+        return new PageBound(start, end);
+    }
 }
