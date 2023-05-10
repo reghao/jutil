@@ -2,6 +2,7 @@ package cn.reghao.jutil.media.video;
 
 import cn.reghao.jutil.jdk.shell.ShellExecutor;
 import cn.reghao.jutil.jdk.shell.ShellResult;
+import cn.reghao.jutil.media.Shell;
 
 /**
  * @author reghao
@@ -9,6 +10,20 @@ import cn.reghao.jutil.jdk.shell.ShellResult;
  */
 public class FFmpegWrapper {
     static ShellExecutor shellExecutor = new ShellExecutor();
+    private final static String ffmpeg = "/usr/bin/ffmpeg";
+
+    public static int formatCovert(String src, String dest) {
+        String cmd = String.format("%s -y -i %s -c:a aac -c:v libx264 %s", ffmpeg, src, dest);
+        return Shell.exec(cmd);
+    }
+
+    public static int qualityCovert(String src, int width, int height, String dest) {
+        String audioBitRate = "128k";
+        String videoBitRate = "1500k";
+        String cmd = String.format("%s -i %s -s %sx%s -c:a aac -b:a %s -c:v libx264 -b:v %s -g 90 %s",
+                ffmpeg, src, width, height, audioBitRate, videoBitRate, dest);
+        return Shell.exec(cmd);
+    }
 
     public static void mergeToMp4(String dir, String videoId, String videoFilePath, String audioFilePath) throws Exception {
         String mp4FilePath = String.format("%s/%s.mp4", dir, videoId);
@@ -32,8 +47,5 @@ public class FFmpegWrapper {
         if (!shellResult.isSuccess()) {
             throw new Exception("生成 dash 异常: " + shellResult.getResult());
         }
-    }
-
-    public static void generateM3u8() {
     }
 }

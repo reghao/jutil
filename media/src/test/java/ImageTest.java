@@ -1,12 +1,15 @@
 import cn.reghao.jutil.jdk.converter.DateTimeConverter;
 import cn.reghao.jutil.jdk.serializer.JsonConverter;
+import cn.reghao.jutil.media.Shell;
 import cn.reghao.jutil.media.image.ImageOps;
 import cn.reghao.jutil.media.po.AudioInfo;
 import cn.reghao.jutil.media.po.MediaInfo;
 import cn.reghao.jutil.media.po.VideoInfo;
+import cn.reghao.jutil.media.video.FFmpegWrapper;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
+import lombok.extern.slf4j.Slf4j;
 
 import javax.imageio.ImageIO;
 import java.io.*;
@@ -15,6 +18,7 @@ import java.nio.file.FileVisitor;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.attribute.BasicFileAttributes;
+import java.sql.SQLOutput;
 import java.time.LocalDateTime;
 import java.util.HashMap;
 import java.util.Map;
@@ -30,8 +34,13 @@ public class ImageTest {
     static String ffmpeg = "/usr/bin/ffmpeg";
 
     static String fileInfo(String src) {
-        return String.format("%s -b \"%s\"", file, src);
-        //return String.format("%s -b -i \"%s\"", file, src);
+        String cmd = String.format("%s -b \"%s\"", file, src);
+        return Shell.execWithResult(cmd);
+    }
+
+    static String getMediaType(String src) {
+        String cmd = String.format("%s -b --mime-type \"%s\"", file, src);
+        return Shell.execWithResult(cmd);
     }
 
     static String probe(String src) {
@@ -51,59 +60,6 @@ public class ImageTest {
 
     static String split(String src, String start, String duration, String dest) {
         return String.format("%s -i %s -ss %s -t %s -vcodec copy -acodec copy %s", ffmpeg, src, start, duration, dest);
-    }
-
-    static void exec(String cmd) {
-        Runtime runtime = Runtime.getRuntime();
-        try {
-            Process proc = runtime.exec(new String[]{bash, "-c", cmd});
-            new Thread(new Output(proc)).start();
-            int status = proc.waitFor();
-            if (status != 0) {
-                System.out.println("失败");
-            }
-
-            proc.getOutputStream().close();
-            proc.getInputStream().close();
-            proc.getErrorStream().close();
-        } catch (Exception e) {
-            e.printStackTrace();
-        } finally {
-            runtime.freeMemory();
-        }
-    }
-
-    static String execWithResult(String cmd) {
-        Runtime runtime = Runtime.getRuntime();
-        try {
-            Process proc = runtime.exec(new String[]{bash, "-c", cmd});
-            int status = proc.waitFor();
-            if (status != 0) {
-                return null;
-            }
-
-            BufferedReader br = new BufferedReader(new InputStreamReader(proc.getInputStream()));
-            StringBuilder sb = new StringBuilder();
-            try {
-                String line;
-                while((line = br.readLine()) != null){
-                    sb.append(line);
-                }
-                br.close();
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
-
-            proc.getOutputStream().close();
-            proc.getInputStream().close();
-            proc.getErrorStream().close();
-            return sb.toString();
-        } catch (Exception e) {
-            e.printStackTrace();
-        } finally {
-            runtime.freeMemory();
-        }
-        return null;
     }
 
     static Map<File, MediaInfo> map = new HashMap<>();
@@ -150,7 +106,7 @@ public class ImageTest {
 
     static MediaInfo getMediaInfo(File file) {
         String cmd = probe(file.getAbsolutePath());
-        String result = execWithResult(cmd);
+        String result = Shell.execWithResult(cmd);
         if (result != null) {
             JsonObject jsonObject = JsonConverter.jsonToJsonElement(result).getAsJsonObject();
             JsonArray streams = jsonObject.get("streams").getAsJsonArray();
@@ -214,46 +170,34 @@ public class ImageTest {
             String audioCodec = mediaInfo.getAudioInfo().getCodecName();
             String videoCodec = mediaInfo.getVideoInfo().getCodecName();
             if (audioCodec.equals("aac") && videoCodec.equals("h264")) {
-                String result = execWithResult(fileInfo(file.getAbsolutePath()));
+                String result = Shell.execWithResult(fileInfo(file.getAbsolutePath()));
                 System.out.println();
             } else {
                 String filePath = file.getAbsolutePath();
                 String filename = file.getName();
                 String cmd = covert(filePath, "/home/reghao/Downloads/0/" + filename);
-                exec(cmd);
+                Shell.exec(cmd);
             }
         });
     }
 
     public static void main(String[] args) throws IOException {
-        String src = "/home/reghao/Downloads/sxd.mp4";
-        String start = "00:00:00";
-        String duration = "00:02:00";
-        String dest = "/home/reghao/Downloads/sxd-1.mp4";
+        String src = "/home/reghao/Downloads/video.mp4";
+        String dest = "/home/reghao/Downloads/video_x264.mp4";
+        /*int status = FFmpegWrapper.formatCovert(src, dest);
+        if (status != 0) {
+            System.out.println("视频格式转换错误");
+            return;
+        }*/
 
-        String cmd = split(src, start, duration, dest);
-        exec(cmd);
-    }
-
-    static class Output implements Runnable {
-        private final Process proc;
-
-        public Output(Process proc) {
-            this.proc = proc;
-        }
-
-        @Override
-        public void run() {
-            BufferedReader br = new BufferedReader(new InputStreamReader(proc.getErrorStream()));
-            try {
-                String line;
-                while((line = br.readLine()) != null){
-                    System.out.println(line);
-                }
-                br.close();
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
-        }
+        /*int width = 144;
+        int height = 256;
+        String dest1 = String.format("/home/reghao/Downloads/video_x264_%sx%s.mp4", width, height);
+        int status1 = FFmpegWrapper.qualityCovert(dest, width, height, dest1);
+        if (status1 != 0) {
+            System.out.println("视频质量转换错误");
+        }*/
+        String mediaType = getMediaType("/opt/oss/disk/00b989fc-991b-4d4e-959e-9b6e19299b72/2/101//14abaa52e32243a196561c19a0ef70f1.dat");
+        System.out.println(mediaType);
     }
 }
