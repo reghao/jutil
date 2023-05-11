@@ -1,8 +1,18 @@
 package cn.reghao.jutil.media.video;
 
+import cn.reghao.jutil.jdk.converter.DateTimeConverter;
+import cn.reghao.jutil.jdk.serializer.JsonConverter;
 import cn.reghao.jutil.jdk.shell.ShellExecutor;
 import cn.reghao.jutil.jdk.shell.ShellResult;
 import cn.reghao.jutil.media.Shell;
+import cn.reghao.jutil.media.po.AudioProps;
+import cn.reghao.jutil.media.po.MediaProps;
+import cn.reghao.jutil.media.po.VideoProps;
+import com.google.gson.JsonArray;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
+
+import java.time.LocalDateTime;
 
 /**
  * @author reghao
@@ -10,7 +20,55 @@ import cn.reghao.jutil.media.Shell;
  */
 public class FFmpegWrapper {
     static ShellExecutor shellExecutor = new ShellExecutor();
+    private final static String ffprobe = "/usr/bin/ffprobe";
     private final static String ffmpeg = "/usr/bin/ffmpeg";
+
+    public static MediaProps getMediaProps(String src) {
+        String cmd = String.format("%s -v quiet -print_format json -show_format -show_streams -i \"%s\"", ffprobe, src);
+        String result = Shell.execWithResult(cmd);
+        if (result != null) {
+            JsonObject jsonObject = JsonConverter.jsonToJsonElement(result).getAsJsonObject();
+            JsonArray streams = jsonObject.get("streams").getAsJsonArray();
+            AudioProps audioProps = null;
+            VideoProps videoProps = null;
+            for (JsonElement jsonElement : streams) {
+                JsonObject jsonObject1 = jsonElement.getAsJsonObject();
+                String codecType = jsonObject1.get("codec_type").getAsString();
+                if (codecType.equals("audio")) {
+                    String codecName = jsonObject1.get("codec_name").getAsString();
+                    String codecTagString = jsonObject1.get("codec_tag_string").getAsString();
+                    double bitRate = jsonObject1.get("bit_rate").getAsDouble();
+                    double duration = jsonObject1.get("duration").getAsDouble();
+                    audioProps = new AudioProps(codecName, codecTagString, bitRate, duration);
+                } else if (codecType.equals("video")) {
+                    String codecName = jsonObject1.get("codec_name").getAsString();
+                    String codecTagString = jsonObject1.get("codec_tag_string").getAsString();
+                    double bitRate = jsonObject1.get("bit_rate").getAsDouble();
+                    double duration = jsonObject1.get("duration").getAsDouble();
+                    double codedWidth = jsonObject1.get("coded_width").getAsDouble();
+                    double codedHeight = jsonObject1.get("coded_height").getAsDouble();
+                    videoProps = new VideoProps(codecName, codecTagString, bitRate, duration, codedWidth, codedHeight);
+                }
+            }
+
+            JsonObject format = jsonObject.get("format").getAsJsonObject();
+            double duration = format.get("duration").getAsDouble();
+            double size = format.get("size").getAsDouble();
+            double bitRate = format.get("bit_rate").getAsDouble();
+
+            MediaProps mediaProps = new MediaProps(audioProps, videoProps);
+            JsonObject tags = format.get("tags").getAsJsonObject();
+            JsonElement jsonElement = tags.get("creation_time");
+            if (jsonElement != null) {
+                String creationTime = jsonElement.getAsString();
+                LocalDateTime localDateTime = DateTimeConverter.localDateTime(creationTime);
+                mediaProps.setCreateTime(localDateTime);
+            }
+
+            return mediaProps;
+        }
+        return null;
+    }
 
     public static int formatCovert(String src, String dest) {
         String cmd = String.format("%s -y -i %s -c:a aac -c:v libx264 %s", ffmpeg, src, dest);

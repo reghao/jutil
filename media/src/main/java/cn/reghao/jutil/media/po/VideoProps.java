@@ -9,7 +9,7 @@ import lombok.Getter;
  */
 @AllArgsConstructor
 @Getter
-public class VideoInfo {
+public class VideoProps {
     private String codecName;
     private String codecTagString;
     private double bitRate;

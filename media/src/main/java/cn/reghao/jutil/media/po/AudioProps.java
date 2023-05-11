@@ -9,7 +9,7 @@ import lombok.Getter;
  */
 @AllArgsConstructor
 @Getter
-public class AudioInfo {
+public class AudioProps {
     private String codecName;
     private String codecTagString;
     private double bitRate;
