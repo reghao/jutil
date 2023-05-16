@@ -63,7 +63,7 @@ public class MediaTest {
     }
 
     static void videoTest() throws IOException {
-        String src = "/home/reghao/Downloads/video.mp4";
+        String src = "/home/reghao/Downloads/0/莫菁柳州艳照门无水印11部MPG大格式合集/MOV08058.MPG";
         MediaProps mediaProps = FFmpegWrapper.getMediaProps(src);
         if (mediaProps == null) {
             return;
