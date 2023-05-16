@@ -23,18 +23,13 @@ public class PageList<T> {
     // 当前页元素
     private final List<T> list;
 
-    // 当前页
-    @Deprecated
-    private int page;
-    // 当前页大小
-    @Deprecated
-    private int size;
-    // 根据当前页大小计算得出的总页数
-    @Deprecated
-    private int pages;
-    // 总数量
-    @Deprecated
-    private int total;
+    public static <T> PageList<T> empty() {
+        return new PageList<>(1, 10, 0, Collections.emptyList());
+    }
+
+    public static <T> PageList<T> pageList(int pageNumber, int pageSize, int total, List<T> list) {
+        return new PageList<>(pageNumber, pageSize, total, list);
+    }
 
     private PageList(int pageNumber, int pageSize, int totalSize, List<T> list) {
         this.pageNumber = pageNumber;
@@ -76,23 +71,5 @@ public class PageList<T> {
 
     public List<T> getList() {
         return list;
-    }
-
-    @Deprecated
-    public static <T> PageList<T> empty(int pageNumber, int pageSize) {
-        return new PageList<>(pageNumber, pageSize);
-    }
-
-    public static <T> PageList<T> empty() {
-        return new PageList<>(1, 10, 0, Collections.emptyList());
-    }
-
-    @Deprecated
-    public static <T> PageList<T> pageList(List<T> list) {
-        return new PageList<>(1, 10, 0, Collections.emptyList());
-    }
-
-    public static <T> PageList<T> pageList(int pageNumber, int pageSize, int total, List<T> list) {
-        return new PageList<>(pageNumber, pageSize, total, list);
     }
 }
