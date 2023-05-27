@@ -1,5 +1,6 @@
 package cn.reghao.jutil.jdk.db;
 
+import java.io.Serializable;
 import java.util.Collections;
 import java.util.List;
 
@@ -9,7 +10,9 @@ import java.util.List;
  * @author reghao
  * @date 2020-03-05 17:39:53
  */
-public class PageList<T> {
+public class PageList<T> implements Serializable {
+    private static final long serialVersionUID = 1L;
+
     // 当前页
     private final int pageNumber;
     // 每页大小

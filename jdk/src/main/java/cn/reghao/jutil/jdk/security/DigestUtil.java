@@ -2,6 +2,8 @@ package cn.reghao.jutil.jdk.security;
 
 import cn.reghao.jutil.jdk.converter.ByteHex;
 
+import java.io.File;
+import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.security.MessageDigest;
@@ -39,6 +41,21 @@ public class DigestUtil {
         while ((readByes = in.read(buf, 0, len)) != -1) {
             messageDigest.update(buf, 0, readByes);
         }
+
+        return ByteHex.bytes2Hex(messageDigest.digest());
+    }
+
+    public static String sha256sum(String absolutePath) throws IOException, NoSuchAlgorithmException {
+        FileInputStream in = new FileInputStream(absolutePath);
+        MessageDigest messageDigest = MessageDigest.getInstance("SHA-256");
+        // 16MiB
+        int len = 1024*1024*16;
+        byte[] buf = new byte[len];
+        int readByes;
+        while ((readByes = in.read(buf, 0, len)) != -1) {
+            messageDigest.update(buf, 0, readByes);
+        }
+        in.close();
 
         return ByteHex.bytes2Hex(messageDigest.digest());
     }
