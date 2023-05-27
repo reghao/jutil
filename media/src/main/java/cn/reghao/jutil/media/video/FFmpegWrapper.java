@@ -57,14 +57,12 @@ public class FFmpegWrapper {
             double bitRate = format.get("bit_rate").getAsDouble();
 
             MediaProps mediaProps = new MediaProps(audioProps, videoProps);
-            JsonElement tagsElement = format.get("tags");
-            if (tagsElement != null) {
-                JsonElement jsonElement = tagsElement.getAsJsonObject().get("creation_time");
-                if (jsonElement != null) {
-                    String creationTime = jsonElement.getAsString();
-                    LocalDateTime localDateTime = DateTimeConverter.localDateTime(creationTime);
-                    mediaProps.setCreateTime(localDateTime);
-                }
+            JsonObject tags = format.get("tags").getAsJsonObject();
+            JsonElement jsonElement = tags.get("creation_time");
+            if (jsonElement != null) {
+                String creationTime = jsonElement.getAsString();
+                LocalDateTime localDateTime = DateTimeConverter.localDateTime(creationTime);
+                mediaProps.setCreateTime(localDateTime);
             }
 
             return mediaProps;
