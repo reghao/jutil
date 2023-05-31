@@ -1,4 +1,4 @@
-package cn.reghao.jutil.media.po;
+package cn.reghao.jutil.media.model;
 
 import lombok.Getter;
 import lombok.Setter;

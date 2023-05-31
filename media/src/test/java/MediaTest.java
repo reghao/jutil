@@ -1,5 +1,5 @@
 import cn.reghao.jutil.media.image.ImageOps;
-import cn.reghao.jutil.media.po.MediaProps;
+import cn.reghao.jutil.media.model.MediaProps;
 import cn.reghao.jutil.media.video.FFmpegWrapper;
 
 import javax.imageio.ImageIO;
