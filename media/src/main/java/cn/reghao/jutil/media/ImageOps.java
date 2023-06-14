@@ -1,4 +1,4 @@
-package cn.reghao.jutil.media.image;
+package cn.reghao.jutil.media;
 
 import javax.imageio.ImageIO;
 import javax.imageio.ImageReader;

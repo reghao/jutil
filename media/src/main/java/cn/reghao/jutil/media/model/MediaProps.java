@@ -1,16 +1,11 @@
 package cn.reghao.jutil.media.model;
 
-import lombok.Getter;
-import lombok.Setter;
-
 import java.time.LocalDateTime;
 
 /**
  * @author reghao
  * @date 2023-03-28 10:07:59
  */
-@Getter
-@Setter
 public class MediaProps {
     private AudioProps audioProps;
     private VideoProps videoProps;
@@ -19,5 +14,21 @@ public class MediaProps {
     public MediaProps(AudioProps audioProps, VideoProps videoProps) {
         this.audioProps = audioProps;
         this.videoProps = videoProps;
+    }
+
+    public AudioProps getAudioProps() {
+        return audioProps;
+    }
+
+    public VideoProps getVideoProps() {
+        return videoProps;
+    }
+
+    public void setCreateTime(LocalDateTime createTime) {
+        this.createTime = createTime;
+    }
+
+    public LocalDateTime getCreateTime() {
+        return createTime;
     }
 }

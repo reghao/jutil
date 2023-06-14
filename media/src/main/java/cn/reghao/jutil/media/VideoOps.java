@@ -1,6 +1,5 @@
-package cn.reghao.jutil.media.video;
+package cn.reghao.jutil.media;
 
-import cn.reghao.jutil.media.image.ImageOps;
 import org.bytedeco.ffmpeg.avformat.AVFormatContext;
 import org.bytedeco.ffmpeg.avutil.AVDictionary;
 import org.bytedeco.ffmpeg.avutil.AVDictionaryEntry;
@@ -21,6 +20,7 @@ import java.util.*;
  * @author reghao
  * @date 2021-08-04 09:51:30
  */
+@Deprecated
 public class VideoOps {
     static {
         avutil.av_log_set_level(avutil.AV_LOG_QUIET);

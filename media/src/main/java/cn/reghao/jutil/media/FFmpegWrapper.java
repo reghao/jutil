@@ -1,4 +1,4 @@
-package cn.reghao.jutil.media.video;
+package cn.reghao.jutil.media;
 
 import cn.reghao.jutil.jdk.converter.DateTimeConverter;
 import cn.reghao.jutil.jdk.serializer.JsonConverter;
@@ -19,7 +19,6 @@ import java.time.LocalDateTime;
  * @date 2022-03-04 11:04:32
  */
 public class FFmpegWrapper {
-    static ShellExecutor shellExecutor = new ShellExecutor();
     private final static String ffprobe = "/usr/bin/ffprobe";
     private final static String ffmpeg = "/usr/bin/ffmpeg";
 
@@ -37,41 +36,83 @@ public class FFmpegWrapper {
                 if (codecType.equals("audio")) {
                     String codecName = jsonObject1.get("codec_name").getAsString();
                     String codecTagString = jsonObject1.get("codec_tag_string").getAsString();
-                    double bitRate = jsonObject1.get("bit_rate").getAsDouble();
-                    double duration = jsonObject1.get("duration").getAsDouble();
+
+                    JsonElement bitRateElement = jsonObject1.get("bit_rate");
+                    double bitRate;
+                    if (bitRateElement == null) {
+                        bitRate = 0.0;
+                    } else {
+                        bitRate = bitRateElement.getAsDouble();
+                    }
+
+                    JsonElement durationElement = jsonObject1.get("duration");
+                    double duration;
+                    if (durationElement == null) {
+                        duration = 0;
+                    } else {
+                        duration = durationElement.getAsDouble();
+                    }
                     audioProps = new AudioProps(codecName, codecTagString, bitRate, duration);
                 } else if (codecType.equals("video")) {
                     String codecName = jsonObject1.get("codec_name").getAsString();
                     String codecTagString = jsonObject1.get("codec_tag_string").getAsString();
-                    double bitRate = jsonObject1.get("bit_rate").getAsDouble();
-                    double duration = jsonObject1.get("duration").getAsDouble();
+
+                    double bitRate;
+                    JsonElement biteRateElement = jsonObject1.get("bit_rate");
+                    if (biteRateElement == null) {
+                        bitRate = 0;
+                    } else {
+                        bitRate = biteRateElement.getAsDouble();
+                    }
+
+                    double duration;
+                    JsonElement durationElement = jsonObject1.get("duration");
+                    if (durationElement == null) {
+                        duration = 0;
+                    } else {
+                        duration = durationElement.getAsDouble();
+                    }
+
                     double codedWidth = jsonObject1.get("coded_width").getAsDouble();
                     double codedHeight = jsonObject1.get("coded_height").getAsDouble();
                     videoProps = new VideoProps(codecName, codecTagString, bitRate, duration, codedWidth, codedHeight);
                 }
             }
 
-            JsonObject format = jsonObject.get("format").getAsJsonObject();
-            double duration = format.get("duration").getAsDouble();
-            double size = format.get("size").getAsDouble();
-            double bitRate = format.get("bit_rate").getAsDouble();
-
-            MediaProps mediaProps = new MediaProps(audioProps, videoProps);
-            JsonObject tags = format.get("tags").getAsJsonObject();
-            JsonElement jsonElement = tags.get("creation_time");
-            if (jsonElement != null) {
-                String creationTime = jsonElement.getAsString();
-                LocalDateTime localDateTime = DateTimeConverter.localDateTime(creationTime);
-                mediaProps.setCreateTime(localDateTime);
+            if (videoProps == null) {
+                return null;
             }
 
+            JsonObject format = jsonObject.get("format").getAsJsonObject();
+            if (format.get("duration") != null) {
+                Double duration = format.get("duration").getAsDouble();
+                videoProps.setDuration(duration);
+            }
+
+            Long size = format.get("size").getAsLong();
+            if (format.get("bit_rate") != null) {
+                Double bitRate = format.get("bit_rate").getAsDouble();
+                videoProps.setBitRate(bitRate);
+            }
+
+            MediaProps mediaProps = new MediaProps(audioProps, videoProps);
+            JsonElement tagsElement = format.get("tags");
+            if (tagsElement != null) {
+                JsonObject tags = tagsElement.getAsJsonObject();
+                JsonElement jsonElement = tags.get("creation_time");
+                if (jsonElement != null) {
+                    String creationTime = jsonElement.getAsString();
+                    LocalDateTime localDateTime = DateTimeConverter.localDateTime(creationTime);
+                    mediaProps.setCreateTime(localDateTime);
+                }
+            }
             return mediaProps;
         }
         return null;
     }
 
     public static int formatCovert(String src, String dest) {
-        String cmd = String.format("%s -y -i %s -c:a aac -c:v libx264 %s", ffmpeg, src, dest);
+        String cmd = String.format("%s -y -i %s -c:a aac -c:v libx264 -f mp4 %s", ffmpeg, src, dest);
         return Shell.exec(cmd);
     }
 
@@ -83,27 +124,17 @@ public class FFmpegWrapper {
         return Shell.exec(cmd);
     }
 
-    public static void mergeToMp4(String dir, String videoId, String videoFilePath, String audioFilePath) throws Exception {
+    public static void mp4ToM3u8() {
+
+    }
+
+    public static void m3u8ToMp4(String dir, String videoId, String videoFilePath, String audioFilePath) throws Exception {
         String mp4FilePath = String.format("%s/%s.mp4", dir, videoId);
 
         StringBuilder sb = new StringBuilder();
         sb.append("ffmpeg -i ").append(audioFilePath).append(" ")
                 .append("-i ").append(videoFilePath).append(" ")
                 .append("-codec copy ").append(mp4FilePath);
-        ShellResult shellResult = shellExecutor.exec(dir, sb.toString().split("\\s+"));
-        if (!shellResult.isSuccess()) {
-            throw new Exception("合并成 mp4 文件异常: " + shellResult.getResult());
-        }
-    }
-
-    public static void generateDash(String dir, String video, String audio) throws Exception {
-        StringBuilder sb = new StringBuilder();
-        sb.append("MP4Box -dash 5000 -rap -frag-rap -profile dashavc264:onDemand -frag 5000 ")
-                .append(video).append(" ").append(audio).append(" ")
-                .append("-out index.mpd");
-        ShellResult shellResult = shellExecutor.exec(dir, sb.toString().split("\\s+"));
-        if (!shellResult.isSuccess()) {
-            throw new Exception("生成 dash 异常: " + shellResult.getResult());
-        }
+        Shell.exec(sb.toString());
     }
 }
