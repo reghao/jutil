@@ -73,6 +73,6 @@ public class WebClient implements WebRequest {
     }
 
     @Override
-    public void download(String url, String dir) throws IOException {
+    public void download(String url, String referer, String dir) throws IOException {
     }
 }

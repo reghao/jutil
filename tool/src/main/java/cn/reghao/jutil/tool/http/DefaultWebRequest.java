@@ -197,9 +197,11 @@ public class DefaultWebRequest extends BaseWebRequest implements WebRequest {
         }
     }
 
-    public void download(String url, String filePath) throws IOException {
+    @Override
+    public void download(String url, String referer, String filePath) throws IOException {
         HttpGet get = new HttpGet(url);
         get.setHeader("User-Agent", UserAgents.getDesktopAgent());
+        get.setHeader("Referer", referer);
         long start = System.currentTimeMillis();
         try (CloseableHttpResponse response = client.execute(get)) {
             int statusCode = response.getStatusLine().getStatusCode();
