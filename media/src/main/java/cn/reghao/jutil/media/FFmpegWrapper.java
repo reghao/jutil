@@ -109,9 +109,9 @@ public class FFmpegWrapper {
         return null;
     }
 
-    public static int formatCovert(String srcPath, String destPath) {
-        String cmd = String.format("%s -loglevel error -y -i '%s' -c:a aac -c:v libx264 -f mp4 '%s'",
-                ffmpeg, srcPath, destPath);
+    public static int formatCovert(String srcPath, String destPath, String format) {
+        String cmd = String.format("%s -loglevel error -y -i '%s' -c:a aac -c:v libx264 -f %s '%s'",
+                ffmpeg, srcPath, format, destPath);
         return Shell.exec(cmd);
     }
 
