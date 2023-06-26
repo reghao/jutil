@@ -17,13 +17,12 @@ public class PageList<T> implements Serializable {
     private final int pageNumber;
     // 每页大小
     private final int pageSize;
-    // 总页数
-    private final int totalPages;
     // 总记录数量
     private final int totalSize;
     // 是否最后一页
     private final boolean hasNext;
-    private final String lastId;
+    private final String prevId;
+    private final String nextId;
     // 当前页元素
     private final List<T> list;
 
@@ -39,34 +38,48 @@ public class PageList<T> implements Serializable {
         return new PageList<>(pageNumber, pageSize, total, lastId, list);
     }
 
+    public static <T> PageList<T> pageList(int pageNumber, int pageSize, int total, String prevId, String nextId, List<T> list) {
+        return new PageList<>(pageNumber, pageSize, total, prevId, nextId, list);
+    }
+
     private PageList(int pageNumber, int pageSize, int totalSize, List<T> list) {
         this.pageNumber = pageNumber;
         this.pageSize = pageSize;
         this.totalSize = totalSize;
-        this.totalPages = totalSize/pageSize + (totalSize%pageSize != 0 ? 1 : 0);
         this.list = list;
         this.hasNext = (totalSize - pageSize*pageNumber > 0);
-        this.lastId = "0";
+        this.prevId = "0";
+        this.nextId = "0";
     }
 
     private PageList(int pageNumber, int pageSize, int totalSize, String lastId, List<T> list) {
         this.pageNumber = pageNumber;
         this.pageSize = pageSize;
         this.totalSize = totalSize;
-        this.totalPages = totalSize/pageSize + (totalSize%pageSize != 0 ? 1 : 0);
         this.list = list;
         this.hasNext = (totalSize - pageSize*pageNumber > 0);
-        this.lastId = lastId;
+        this.prevId = "0";
+        this.nextId = lastId;
+    }
+
+    private PageList(int pageNumber, int pageSize, int totalSize, String prevId, String lastId, List<T> list) {
+        this.pageNumber = pageNumber;
+        this.pageSize = pageSize;
+        this.totalSize = totalSize;
+        this.list = list;
+        this.hasNext = (totalSize - pageSize*pageNumber > 0);
+        this.prevId = prevId;
+        this.nextId = lastId;
     }
 
     private PageList(int pageNumber, int pageSize) {
         this.pageNumber = pageNumber;
         this.pageSize = pageSize;
         this.totalSize = 0;
-        this.totalPages = 0;
         this.list = Collections.emptyList();
         this.hasNext = false;
-        this.lastId = "0";
+        this.prevId = "0";
+        this.nextId = "0";
     }
 
     public int getPageNumber() {
@@ -77,10 +90,6 @@ public class PageList<T> implements Serializable {
         return pageSize;
     }
 
-    public int getTotalPages() {
-        return totalPages;
-    }
-
     public long getTotalSize() {
         return totalSize;
     }
@@ -89,8 +98,12 @@ public class PageList<T> implements Serializable {
         return hasNext;
     }
 
-    public String getLastId() {
-        return lastId;
+    public String getPrevId() {
+        return prevId;
+    }
+
+    public String getNextId() {
+        return nextId;
     }
 
     public List<T> getList() {
