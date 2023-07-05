@@ -77,23 +77,22 @@ public class FFmpegWrapper {
                 }
             }
 
-            if (videoProps == null) {
-                return null;
-            }
-
             JsonObject format = jsonObject.get("format").getAsJsonObject();
-            if (format.get("duration") != null) {
-                Double duration = format.get("duration").getAsDouble();
-                videoProps.setDuration(duration);
-            }
+            if (videoProps != null) {
+                if (format.get("duration") != null) {
+                    Double duration = format.get("duration").getAsDouble();
+                    videoProps.setDuration(duration);
+                }
 
-            Long size = format.get("size").getAsLong();
-            if (format.get("bit_rate") != null) {
-                Double bitRate = format.get("bit_rate").getAsDouble();
-                videoProps.setBitRate(bitRate);
+                Long size = format.get("size").getAsLong();
+                if (format.get("bit_rate") != null) {
+                    Double bitRate = format.get("bit_rate").getAsDouble();
+                    videoProps.setBitRate(bitRate);
+                }
             }
 
             MediaProps mediaProps = new MediaProps(audioProps, videoProps);
+            // Metadata
             JsonElement tagsElement = format.get("tags");
             if (tagsElement != null) {
                 JsonObject tags = tagsElement.getAsJsonObject();
@@ -112,6 +111,11 @@ public class FFmpegWrapper {
     public static int formatCovert(String srcPath, String destPath, String format) {
         String cmd = String.format("%s -loglevel error -y -i '%s' -c:a aac -c:v libx264 -f %s '%s'",
                 ffmpeg, srcPath, format, destPath);
+        return Shell.exec(cmd);
+    }
+
+    public static int convertAudio(String srcPath, String destPath) {
+        String cmd = String.format("%s -loglevel error -y -i '%s' -c:a aac '%s'", ffmpeg, srcPath, destPath);
         return Shell.exec(cmd);
     }
 
