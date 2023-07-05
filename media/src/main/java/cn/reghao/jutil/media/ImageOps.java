@@ -12,6 +12,7 @@ import java.io.File;
 import java.io.IOException;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Locale;
 
 /**
  * 对图像的操作
@@ -25,7 +26,7 @@ public class ImageOps {
             Iterator<ImageReader> iterator = ImageIO.getImageReaders(iis);
             if ((iterator.hasNext())) {
                 ImageReader ir = iterator.next();
-                return ir.getFormatName();
+                return ir.getFormatName().toLowerCase(Locale.ROOT);
             }
         } catch (Exception e) {
             e.printStackTrace();
@@ -34,35 +35,26 @@ public class ImageOps {
         return null;
     }
 
-    public static byte[] convert2jpg(File srcFile) {
-        try (ImageInputStream iis = ImageIO.createImageInputStream(srcFile)) {
-            BufferedImage image = ImageIO.read(iis);
-            ByteArrayOutputStream baos = new ByteArrayOutputStream();
-            ImageOutputStream ios = ImageIO.createImageOutputStream(baos);
-            ImageIO.write(image, "jpg", ios);
-            return baos.toByteArray();
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-        return new byte[0];
+    public static byte[] convert2jpg(File srcFile) throws IOException {
+        ImageInputStream iis = ImageIO.createImageInputStream(srcFile);
+        BufferedImage image = ImageIO.read(iis);
+        ByteArrayOutputStream baos = new ByteArrayOutputStream();
+        ImageOutputStream ios = ImageIO.createImageOutputStream(baos);
+        ImageIO.write(image, "jpg", ios);
+        return baos.toByteArray();
     }
 
-    public static byte[] png2jpg(File srcFile) {
-        try {
-            BufferedImage image = ImageIO.read(srcFile);
-            BufferedImage result = new BufferedImage(
-                    image.getWidth(),
-                    image.getHeight(),
-                    BufferedImage.TYPE_INT_RGB);
-            result.createGraphics().drawImage(image, 0, 0, Color.WHITE, null);
+    public static byte[] png2jpg(File srcFile) throws IOException {
+        BufferedImage image = ImageIO.read(srcFile);
+        BufferedImage result = new BufferedImage(
+                image.getWidth(),
+                image.getHeight(),
+                BufferedImage.TYPE_INT_RGB);
+        result.createGraphics().drawImage(image, 0, 0, Color.WHITE, null);
 
-            ByteArrayOutputStream baos = new ByteArrayOutputStream();
-            ImageIO.write(result, "jpg", baos);
-            return baos.toByteArray();
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-        return new byte[0];
+        ByteArrayOutputStream baos = new ByteArrayOutputStream();
+        ImageIO.write(result, "jpg", baos);
+        return baos.toByteArray();
     }
 
     public static byte[] jpg2webp(byte[] bytes) throws IOException {
