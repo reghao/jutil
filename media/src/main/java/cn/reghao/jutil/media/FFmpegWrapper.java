@@ -151,7 +151,7 @@ public class FFmpegWrapper {
 
     public static int covertToM3u8(String srcPath, String m3u8Path) {
         String cmd = String.format("%s -loglevel error -i '%s' -c:v libx264 -c:a aac -strict -2 " +
-                "-f hls -hls_list_size 0 -hls_time 60 '%s'", ffmpeg, srcPath, m3u8Path);
+                "-f hls -hls_list_size 0 -hls_time 10 '%s'", ffmpeg, srcPath, m3u8Path);
         return Shell.exec(cmd);
     }
 
