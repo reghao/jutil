@@ -62,9 +62,6 @@ public class DefaultWebRequest extends BaseWebRequest implements WebRequest {
         UrlEncodedFormEntity urlEncodedFormEntity = new UrlEncodedFormEntity(params, StandardCharsets.UTF_8);
 
         HttpPost post = new HttpPost(url);
-        if (headers != null) {
-            headers.forEach(post::addHeader);
-        }
         post.setEntity(urlEncodedFormEntity);
         return execRequest(post);
     }
@@ -77,10 +74,6 @@ public class DefaultWebRequest extends BaseWebRequest implements WebRequest {
         UrlEncodedFormEntity urlEncodedFormEntity = new UrlEncodedFormEntity(params, StandardCharsets.UTF_8);
 
         HttpPost post = new HttpPost(url);
-        post.addHeader("Authorization", "Bearer " + token);
-        if (headers != null) {
-            headers.forEach(post::addHeader);
-        }
         post.setEntity(urlEncodedFormEntity);
         return execRequest(post);
     }
@@ -91,9 +84,6 @@ public class DefaultWebRequest extends BaseWebRequest implements WebRequest {
         entity.setContentEncoding("UTF-8");
 
         HttpPost post = new HttpPost(url);
-        if (headers != null) {
-            headers.forEach(post::addHeader);
-        }
         post.addHeader("Content-Type", "application/json;charset=UTF-8");
         post.setEntity(entity);
         return execRequest(post);
@@ -184,6 +174,9 @@ public class DefaultWebRequest extends BaseWebRequest implements WebRequest {
     }
 
     private WebResponse execRequest(HttpRequestBase request) {
+        if (headers != null) {
+            headers.forEach(request::addHeader);
+        }
         request.setHeader("User-Agent", UserAgents.getDesktopAgent());
         try (CloseableHttpResponse response = client.execute(request)) {
             StatusLine statusLine = response.getStatusLine();
