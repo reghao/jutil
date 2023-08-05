@@ -5,18 +5,34 @@ import org.springframework.util.StringUtils;
 import org.springframework.web.context.request.RequestContextHolder;
 import org.springframework.web.context.request.ServletRequestAttributes;
 
+import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 import java.io.BufferedReader;
 import java.io.IOException;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * @author reghao
  * @date 2021-06-02 13:16:58
  */
 public class ServletUtil {
-    public static String getJwtToken() {
+    public static Map<String, String> getCookies(HttpServletRequest request) {
+        Cookie[] cookies = request.getCookies();
+        Map<String, String> map = new HashMap<>();
+        if (cookies != null) {
+            for (Cookie cookie : cookies) {
+                String name = cookie.getName();
+                String value = cookie.getValue();
+                map.put(name, value);
+            }
+        }
+        return map;
+    }
+
+    public static String getBearerToken() {
         String auth = getRequest().getHeader("Authorization");
         if (auth == null) {
             return null;
