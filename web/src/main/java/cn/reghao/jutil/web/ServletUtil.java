@@ -19,7 +19,8 @@ import java.util.Map;
  * @date 2021-06-02 13:16:58
  */
 public class ServletUtil {
-    public static Map<String, String> getCookies(HttpServletRequest request) {
+    public static Map<String, String> getCookies() {
+        HttpServletRequest request = getRequest();
         Cookie[] cookies = request.getCookies();
         Map<String, String> map = new HashMap<>();
         if (cookies != null) {
@@ -30,6 +31,11 @@ public class ServletUtil {
             }
         }
         return map;
+    }
+
+    public static String getCookie(String name) {
+        Map<String, String> map = getCookies();
+        return map.get(name);
     }
 
     public static String getBearerToken() {
