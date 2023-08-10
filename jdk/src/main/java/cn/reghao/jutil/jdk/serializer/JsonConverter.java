@@ -1,11 +1,10 @@
 package cn.reghao.jutil.jdk.serializer;
 
 import cn.reghao.jutil.jdk.text.TextFile;
-import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
-import com.google.gson.JsonElement;
-import com.google.gson.JsonParser;
+import com.google.gson.*;
 import com.google.gson.stream.JsonReader;
+import com.google.gson.stream.JsonToken;
+import com.google.gson.stream.JsonWriter;
 
 import java.io.*;
 import java.lang.reflect.Type;
@@ -20,8 +19,41 @@ import java.util.List;
  * @date 2020-11-11 16:57:04
  */
 public class JsonConverter {
+    private static final TypeAdapter<Boolean> booleanAsIntAdapter = new TypeAdapter<>() {
+        @Override public void write(JsonWriter out, Boolean value) throws IOException {
+            if (value == null) {
+                out.nullValue();
+            } else {
+                out.value(value);
+            }
+        }
+        @Override public Boolean read(JsonReader in) throws IOException {
+            JsonToken peek = in.peek();
+            switch (peek) {
+                case BOOLEAN:
+                    return in.nextBoolean();
+                case NULL:
+                    in.nextNull();
+                    return null;
+                case NUMBER:
+                    return in.nextInt() != 0;
+                case STRING:
+                    String intStr = in.nextString();
+                    if (intStr.equalsIgnoreCase("true") || intStr.equalsIgnoreCase("false")) {
+                        return Boolean.parseBoolean(intStr);
+                    } else {
+                        Integer i = Integer.parseInt(intStr);
+                        return i != 0;
+                    }
+                default:
+                    throw new IllegalStateException("Expected BOOLEAN or NUMBER but was " + peek);
+            }
+        }
+    };
     private static final Gson gson = new GsonBuilder()
             .registerTypeAdapter(LocalDateTime.class, new LocalDateTimeAdapter())
+            .registerTypeAdapter(Boolean.class, booleanAsIntAdapter)
+            .registerTypeAdapter(boolean.class, booleanAsIntAdapter)
             .create();
     private static final JsonParser jsonParser = new JsonParser();
 
