@@ -111,6 +111,23 @@ public class TextFile {
         return content.substring(0, index);
     }
 
+    public String readFile(File file) {
+        StringBuilder content = new StringBuilder();
+        try {
+            BufferedReader in =  new BufferedReader(new InputStreamReader(new FileInputStream(file)), bufSize);
+            String line;
+            while ((line = in.readLine()) != null) {
+                content.append(line).append(System.lineSeparator());
+            }
+            in.close();
+        } catch (IOException ioe) {
+            ioe.printStackTrace();
+        }
+
+        int index = content.lastIndexOf(System.lineSeparator());
+        return content.substring(0, index);
+    }
+
     /**
      * 向文件写入内容
      *

@@ -1,6 +1,6 @@
 package cn.reghao.jutil.tool.http;
 
-import cn.reghao.jutil.jdk.http.proxy.RequestProxy;
+import cn.reghao.jutil.jdk.text.TextFile;
 import cn.reghao.jutil.tool.http.util.FakeDnsResolver;
 import cn.reghao.jutil.tool.http.util.MyConnectionSocketFactory;
 import cn.reghao.jutil.tool.http.util.MySSLConnectionSocketFactory;
@@ -18,12 +18,16 @@ import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClientBuilder;
 import org.apache.http.impl.client.HttpClients;
 import org.apache.http.impl.conn.PoolingHttpClientConnectionManager;
+import org.apache.http.impl.cookie.BasicClientCookie;
 import org.apache.http.protocol.HttpContext;
 import org.apache.http.ssl.SSLContexts;
 
+import java.io.File;
 import java.net.InetSocketAddress;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
+import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 /**
@@ -32,29 +36,28 @@ import java.util.List;
  */
 public class BaseWebRequest {
     protected final CloseableHttpClient client;
-    @Deprecated
-    protected final Charset charset;
     protected final String bodyCharset;
-    protected final String userAgent = "Mozilla/5.0 (Windows NT 6.1; WOW64; Trident/7.0; rv:11.0) like Gecko";
+    protected HttpContext context;
 
     public BaseWebRequest() {
         HttpClientBuilder builder = HttpClients.custom()
-                .setConnectionManager(connectionConfig())
+                .setConnectionManager(connectionConfig(false))
                 .setDefaultRequestConfig(requestConfig());
         //.setKeepAliveStrategy(keepAliveConfig())
         this.client = builder.build();
-        this.charset = StandardCharsets.UTF_8;
-        this.bodyCharset = "utf8";
+        this.bodyCharset = StandardCharsets.UTF_8.name();
+        this.context = HttpClientContext.create();
     }
 
-    public BaseWebRequest(String charsetName, boolean enableProxy) {
+    public BaseWebRequest(File cookieFile, String domain) {
         HttpClientBuilder builder = HttpClients.custom()
-                .setConnectionManager(connectionConfig(enableProxy))
+                .setConnectionManager(connectionConfig(false))
                 .setDefaultRequestConfig(requestConfig());
         //.setKeepAliveStrategy(keepAliveConfig())
         this.client = builder.build();
-        this.charset = StandardCharsets.UTF_8;
-        this.bodyCharset = charsetName;
+        this.bodyCharset = StandardCharsets.UTF_8.name();
+        this.context = HttpClientContext.create();
+        setCookies(cookieFile, domain);
     }
 
     /**
@@ -84,20 +87,6 @@ public class BaseWebRequest {
     }
 
     /**
-     * 连接池配置
-     *
-     * @param
-     * @return
-     * @date 2021-03-23 下午6:21
-     */
-    private PoolingHttpClientConnectionManager connectionConfig() {
-        PoolingHttpClientConnectionManager cm = new PoolingHttpClientConnectionManager();
-        cm.setMaxTotal(50);
-        cm.setDefaultMaxPerRoute(20);
-        return cm;
-    }
-
-    /**
      * 请求配置
      *
      * @param
@@ -120,25 +109,42 @@ public class BaseWebRequest {
      * @return
      * @date 2021-03-24 上午2:04
      */
-    protected HttpContext httpContext(List<Cookie> cookies, RequestProxy proxy) {
+    protected HttpContext httpContext() {
         HttpContext context = HttpClientContext.create();
-        setCookies(context, cookies);
-        if (proxy != null) {
-            setProxy(context, proxy);
-        }
+        String host = "";
+        int port = 8888;
+        setProxy(context, host, port);
         return context;
     }
 
-    private void setCookies(HttpContext context, List<Cookie> cookies) {
+    private void setCookies(File cookieFile, String domain) {
+        TextFile textFile = new TextFile();
+        String cookieText = textFile.readFile(cookieFile);
+        String[] pairs = cookieText.replace("\\s+", "").split(";");
+        List<Cookie> cookies = new ArrayList<>();
+        for (String pair : pairs) {
+            String[] strs = pair.split("=");
+            String name = strs[0];
+            String value = strs[1];
+            BasicClientCookie cookie = new BasicClientCookie(name, value);
+            cookie.setAttribute("domain", domain);
+            cookie.setDomain(domain);
+            cookie.setPath("/");
+            long ms = (long)3600*24*180*1000 + System.currentTimeMillis();
+            cookie.setExpiryDate(new Date(ms));
+            cookies.add(cookie);
+        }
+
         // BasicClientCookie
         CookieStore cookieStore = new BasicCookieStore();
         cookies.forEach(cookieStore::addCookie);
+
         // 设置 cookies
         context.setAttribute(HttpClientContext.COOKIE_STORE, cookieStore);
     }
 
-    private void setProxy(HttpContext context, RequestProxy proxy) {
-        InetSocketAddress socketAddress = new InetSocketAddress(proxy.getHost(), proxy.getPort());
+    private void setProxy(HttpContext context, String host, int port) {
+        InetSocketAddress socketAddress = new InetSocketAddress(host, port);
         // 设置 SOCKS5 代理
         context.setAttribute("socks.address", socketAddress);
         // TODO 设置 HTTP/HTTPS 代理

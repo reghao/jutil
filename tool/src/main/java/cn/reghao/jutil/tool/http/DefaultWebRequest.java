@@ -35,6 +35,10 @@ public class DefaultWebRequest extends BaseWebRequest implements WebRequest {
         super();
     }
 
+    public DefaultWebRequest(File cookieFile, String domain) {
+        super(cookieFile, domain);
+    }
+
     public DefaultWebRequest(Map<String, String> headers) {
         super();
         this.headers = headers;
@@ -178,11 +182,10 @@ public class DefaultWebRequest extends BaseWebRequest implements WebRequest {
             headers.forEach(request::addHeader);
         }
         request.setHeader("User-Agent", UserAgents.getDesktopAgent());
-        try (CloseableHttpResponse response = client.execute(request)) {
+        try (CloseableHttpResponse response = client.execute(request, context)) {
             StatusLine statusLine = response.getStatusLine();
             int statusCode = statusLine.getStatusCode();
-            //String body = EntityUtils.toString(response.getEntity(), charset);
-            String body = EntityUtils.toString(response.getEntity(), charset);
+            String body = EntityUtils.toString(response.getEntity(), bodyCharset);
             return new WebResponse(statusCode, body);
         } catch (Exception e) {
             // TODO 是否应该放在 finally 块中？
