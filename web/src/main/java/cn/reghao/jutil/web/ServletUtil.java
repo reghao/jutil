@@ -46,6 +46,7 @@ public class ServletUtil {
         return auth.replace("Bearer ", "");
     }
 
+    @Deprecated
     public static String getUserId() {
         String userId = getRequest().getHeader("x-user-id");
         return  userId != null ? userId : "-1";
