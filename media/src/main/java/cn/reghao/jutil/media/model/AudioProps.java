@@ -7,10 +7,10 @@ package cn.reghao.jutil.media.model;
 public class AudioProps {
     private String codecName;
     private String codecTagString;
-    private double bitRate;
+    private long bitRate;
     private double duration;
 
-    public AudioProps(String codecName, String codecTagString, double bitRate, double duration) {
+    public AudioProps(String codecName, String codecTagString, long bitRate, double duration) {
         this.codecName = codecName;
         this.codecTagString = codecTagString;
         this.bitRate = bitRate;
@@ -33,11 +33,11 @@ public class AudioProps {
         return codecTagString;
     }
 
-    public void setBitRate(double bitRate) {
+    public void setBitRate(long bitRate) {
         this.bitRate = bitRate;
     }
 
-    public double getBitRate() {
+    public long getBitRate() {
         return bitRate;
     }
 

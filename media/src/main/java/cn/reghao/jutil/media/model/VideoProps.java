@@ -7,12 +7,12 @@ package cn.reghao.jutil.media.model;
 public class VideoProps {
     private String codecName;
     private String codecTagString;
-    private Double bitRate;
-    private Double duration;
-    private Double codedWidth;
-    private Double codedHeight;
+    private long bitRate;
+    private double duration;
+    private double codedWidth;
+    private double codedHeight;
 
-    public VideoProps(String codecName, String codecTagString, double bitRate, double duration, double codedWidth, double codedHeight) {
+    public VideoProps(String codecName, String codecTagString, long bitRate, double duration, double codedWidth, double codedHeight) {
         this.codecName = codecName;
         this.codecTagString = codecTagString;
         this.bitRate = bitRate;
@@ -29,11 +29,11 @@ public class VideoProps {
         return codecTagString;
     }
 
-    public void setBitRate(Double bitRate) {
+    public void setBitRate(long bitRate) {
         this.bitRate = bitRate;
     }
 
-    public Double getBitRate() {
+    public long getBitRate() {
         return bitRate;
     }
 

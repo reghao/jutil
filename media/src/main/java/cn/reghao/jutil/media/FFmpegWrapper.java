@@ -36,11 +36,11 @@ public class FFmpegWrapper {
                     String codecTagString = jsonObject1.get("codec_tag_string").getAsString();
 
                     JsonElement bitRateElement = jsonObject1.get("bit_rate");
-                    double bitRate;
+                    long bitRate;
                     if (bitRateElement == null) {
-                        bitRate = 0.0;
+                        bitRate = 0L;
                     } else {
-                        bitRate = bitRateElement.getAsDouble();
+                        bitRate = bitRateElement.getAsLong();
                     }
 
                     JsonElement durationElement = jsonObject1.get("duration");
@@ -55,12 +55,12 @@ public class FFmpegWrapper {
                     String codecName = jsonObject1.get("codec_name").getAsString();
                     String codecTagString = jsonObject1.get("codec_tag_string").getAsString();
 
-                    double bitRate;
+                    long bitRate;
                     JsonElement biteRateElement = jsonObject1.get("bit_rate");
                     if (biteRateElement == null) {
                         bitRate = 0;
                     } else {
-                        bitRate = biteRateElement.getAsDouble();
+                        bitRate = biteRateElement.getAsLong();
                     }
 
                     double duration;
@@ -86,8 +86,10 @@ public class FFmpegWrapper {
 
                 Long size = format.get("size").getAsLong();
                 if (format.get("bit_rate") != null) {
-                    Double bitRate = format.get("bit_rate").getAsDouble();
-                    videoProps.setBitRate(bitRate);
+                    long bitRate = format.get("bit_rate").getAsLong();
+                    if (videoProps.getBitRate() == 0) {
+                        videoProps.setBitRate(bitRate);
+                    }
                 }
             }
 
