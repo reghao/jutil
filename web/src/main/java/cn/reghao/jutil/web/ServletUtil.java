@@ -5,6 +5,7 @@ import org.springframework.util.StringUtils;
 import org.springframework.web.context.request.RequestContextHolder;
 import org.springframework.web.context.request.ServletRequestAttributes;
 
+import javax.servlet.ServletRequest;
 import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -38,8 +39,36 @@ public class ServletUtil {
         return map.get(name);
     }
 
+    public static String getCookie(String name, ServletRequest servletRequest) {
+        Map<String, String> map = getCookies(servletRequest);
+        return map.get(name);
+    }
+
+    public static Map<String, String> getCookies(ServletRequest servletRequest) {
+        HttpServletRequest request = (HttpServletRequest) servletRequest;
+        Cookie[] cookies = request.getCookies();
+        Map<String, String> map = new HashMap<>();
+        if (cookies != null) {
+            for (Cookie cookie : cookies) {
+                String name = cookie.getName();
+                String value = cookie.getValue();
+                map.put(name, value);
+            }
+        }
+        return map;
+    }
+
     public static String getBearerToken() {
         String auth = getRequest().getHeader("Authorization");
+        if (auth == null) {
+            return null;
+        }
+        return auth.replace("Bearer ", "");
+    }
+
+    public static String getBearerToken(ServletRequest servletRequest) {
+        HttpServletRequest request = (HttpServletRequest) servletRequest;
+        String auth = request.getHeader("Authorization");
         if (auth == null) {
             return null;
         }
