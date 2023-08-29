@@ -52,6 +52,10 @@ public class FFmpegWrapper {
                     }
                     audioProps = new AudioProps(codecName, codecTagString, bitRate, duration);
                 } else if (codecType.equals("video")) {
+                    if (videoProps != null) {
+                        continue;
+                    }
+
                     String codecName = jsonObject1.get("codec_name").getAsString();
                     String codecTagString = jsonObject1.get("codec_tag_string").getAsString();
 
