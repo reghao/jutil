@@ -21,28 +21,34 @@ package cn.reghao.jutil.media;
  * @date 2022-08-04 09:21:38
  */
 public enum MediaResolution {
-    p144("144p", 256, 144),
-    p288("288p", 512, 288),
-    p360("360p", 640, 360),
-    p480("480p", 854, 480),
-    p720("720p", 1280, 720),
-    p1080("1080p", 1920, 1080),
-    p1440("2k", 2560, 1440),
-    p2160("4k", 3840, 2160),
-    p4320("8k", 7680, 4320);
+    p144(144, "144p", 256, 144),
+    p288(288, "288p", 512, 288),
+    p360(360, "360p", 640, 360),
+    p480(480, "480p", 854, 480),
+    p720(720, "720p", 1280, 720),
+    p1080(1080, "1080p", 1920, 1080),
+    p1440(1440, "2k", 2560, 1440),
+    p2160(2160, "4k", 3840, 2160),
+    p4320(4320, "8k", 7680, 4320);
 
-    private final String quality;
+    private final int quality;
+    private final String qualityStr;
     private final int width;
     private final int height;
 
-    MediaResolution(String quality, int width, int height) {
+    MediaResolution(int quality, String qualityStr, int width, int height) {
         this.quality = quality;
+        this.qualityStr = qualityStr;
         this.width = width;
         this.height = height;
     }
 
-    public String getQuality() {
+    public int getQuality() {
         return quality;
+    }
+
+    public String getQualityStr() {
+        return qualityStr;
     }
 
     public int getWidth() {
