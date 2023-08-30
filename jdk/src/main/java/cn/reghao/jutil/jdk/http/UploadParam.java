@@ -10,8 +10,13 @@ import java.util.Map;
 public class UploadParam {
     private File file;
     private byte[] bytes;
-    private final String mimeType;
+    private String mimeType;
     private Map<String, String> textParams;
+
+    public UploadParam(File file, Map<String, String> params) {
+        this.file = file;
+        this.textParams = params;
+    }
 
     public UploadParam(File file, String mimeType) {
         this.file = file;

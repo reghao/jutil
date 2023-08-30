@@ -115,7 +115,7 @@ public class DefaultWebRequest extends BaseWebRequest implements WebRequest {
 
         ContentBody contentBody;
         if (uploadParam.getFile() != null) {
-            contentBody = new FileBody(uploadParam.getFile(), uploadParam.getMimeType());
+            contentBody = new FileBody(uploadParam.getFile());
         } else if (uploadParam.getBytes() != null) {
             contentBody = new ByteArrayBody(uploadParam.getBytes(), uploadParam.getMimeType());
         } else {
@@ -142,14 +142,14 @@ public class DefaultWebRequest extends BaseWebRequest implements WebRequest {
         }
     }
 
-    public WebResponse upload1(String url, UploadParam uploadParam, String token) {
+    public WebResponse upload1(String url, UploadParam uploadParam, long userId) {
         MultipartEntityBuilder builder = MultipartEntityBuilder.create();
         builder.setMode(HttpMultipartMode.BROWSER_COMPATIBLE);
         builder.setCharset(StandardCharsets.UTF_8);
 
         ContentBody contentBody;
         if (uploadParam.getFile() != null) {
-            contentBody = new FileBody(uploadParam.getFile(), uploadParam.getMimeType());
+            contentBody = new FileBody(uploadParam.getFile());
         } else if (uploadParam.getBytes() != null) {
             contentBody = new ByteArrayBody(uploadParam.getBytes(), uploadParam.getMimeType());
         } else {
@@ -163,10 +163,7 @@ public class DefaultWebRequest extends BaseWebRequest implements WebRequest {
         }
 
         HttpPost post = new HttpPost(url);
-        post.addHeader("Authorization", "Bearer " + token);
-        if (headers != null) {
-            headers.forEach(post::addHeader);
-        }
+        post.addHeader("x-user-id", ""+userId);
         post.setEntity(builder.build());
         try (CloseableHttpResponse response = client.execute(post)) {
             int statusCode = response.getStatusLine().getStatusCode();
@@ -197,7 +194,10 @@ public class DefaultWebRequest extends BaseWebRequest implements WebRequest {
     public void download(String url, String referer, String filePath) throws IOException {
         HttpGet get = new HttpGet(url);
         get.setHeader("User-Agent", UserAgents.getDesktopAgent());
-        get.setHeader("Referer", referer);
+        if (referer != null) {
+            get.setHeader("Referer", referer);
+        }
+
         long start = System.currentTimeMillis();
         try (CloseableHttpResponse response = client.execute(get)) {
             int statusCode = response.getStatusLine().getStatusCode();
@@ -208,6 +208,8 @@ public class DefaultWebRequest extends BaseWebRequest implements WebRequest {
                 FileOutputStream fout = new FileOutputStream(file);
                 // 持续写到本地文件，直到服务器没有数据
                 httpEntity.writeTo(fout);
+            } else {
+                throw new IOException(""+statusCode);
             }
         } catch (IOException e) {
             throw e;
