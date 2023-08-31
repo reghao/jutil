@@ -76,8 +76,13 @@ public class UrlFormatter {
         String params = url.toLowerCase().split("\\?")[1];
         String lname = name.toLowerCase();
         for (String kv : params.split("&")) {
-            if (kv.startsWith(lname)) {
-                return kv.split("=")[1];
+            String[] arr = kv.split("=");
+            if (arr.length != 2) {
+                return null;
+            }
+
+            if (lname.equals(arr[0])) {
+                return arr[1];
             }
         }
 
