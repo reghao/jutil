@@ -139,7 +139,7 @@ public class JsonConverter {
      * @return
      * @date 2020-11-11 下午5:10
      */
-    public static String listToJson(List<Object> objects) {
+    public static <T> String listToJson(List<T> objects) {
         return gson.toJson(objects);
     }
 }
