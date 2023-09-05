@@ -63,17 +63,24 @@ public class Result implements Serializable {
         return result;
     }
 
-    public static Result fail(String data) {
+    public static Result success() {
         Result result = new Result();
-        result.setCode(FAIL.getCode());
-        result.setMsg(data);
+        result.setCode(SUCCESS.getCode());
+        result.setMsg("success");
         return result;
     }
 
-    public static Result error(String data) {
+    public static Result fail(String msg) {
+        Result result = new Result();
+        result.setCode(FAIL.getCode());
+        result.setMsg(msg);
+        return result;
+    }
+
+    public static Result error(String msg) {
         Result result = new Result();
         result.setCode(ERROR.getCode());
-        result.setMsg(data);
+        result.setMsg(msg);
         return result;
     }
 }

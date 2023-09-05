@@ -14,20 +14,24 @@ public class PageList<T> implements Serializable {
     private static final long serialVersionUID = 1L;
 
     // 当前页
-    private final int pageNumber;
+    private int pageNumber;
     // 每页大小
-    private final int pageSize;
+    private int pageSize;
     // 总记录数量
-    private final int totalSize;
+    private int totalSize;
     // 是否最后一页
-    private final boolean hasNext;
-    private final String prevId;
+    private boolean hasNext;
+    private String prevId;
     private final String nextId;
     // 当前页元素
     private final List<T> list;
 
     public static <T> PageList<T> empty() {
         return new PageList<>(1, 10, 0, Collections.emptyList());
+    }
+
+    public static <T> PageList<T> pageList(String nextId, List<T> list) {
+        return new PageList<>(nextId, list);
     }
 
     public static <T> PageList<T> pageList(int pageNumber, int pageSize, int total, List<T> list) {
@@ -60,6 +64,11 @@ public class PageList<T> implements Serializable {
         this.hasNext = (totalSize - pageSize*pageNumber > 0);
         this.prevId = "0";
         this.nextId = lastId;
+    }
+
+    private PageList(String nextId, List<T> list) {
+        this.list = list;
+        this.nextId = nextId;
     }
 
     private PageList(int pageNumber, int pageSize, int totalSize, String prevId, String lastId, List<T> list) {
