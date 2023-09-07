@@ -7,9 +7,9 @@ package cn.reghao.jutil.jdk.result;
  * @date 2019-10-17 16:18:25
  */
 public enum ResultStatus {
-    SUCCESS(0, "成功"),
-    FAIL(1, "失败"),
-    ERROR(-1, "错误");
+    SUCCESS(0, "success"),
+    FAIL(1, "fail"),
+    ERROR(-1, "error");
 
     private int code;
     private String msg;
