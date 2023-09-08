@@ -22,9 +22,7 @@ import org.apache.http.impl.cookie.BasicClientCookie;
 import org.apache.http.protocol.HttpContext;
 import org.apache.http.ssl.SSLContexts;
 
-import java.io.File;
 import java.net.InetSocketAddress;
-import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Date;
@@ -49,7 +47,7 @@ public class BaseWebRequest {
         this.context = HttpClientContext.create();
     }
 
-    public BaseWebRequest(File cookieFile, String domain) {
+    public BaseWebRequest(String cookie, String domain) {
         HttpClientBuilder builder = HttpClients.custom()
                 .setConnectionManager(connectionConfig(false))
                 .setDefaultRequestConfig(requestConfig());
@@ -57,7 +55,7 @@ public class BaseWebRequest {
         this.client = builder.build();
         this.bodyCharset = StandardCharsets.UTF_8.name();
         this.context = HttpClientContext.create();
-        setCookies(cookieFile, domain);
+        setCookies(cookie, domain);
     }
 
     /**
@@ -117,9 +115,7 @@ public class BaseWebRequest {
         return context;
     }
 
-    private void setCookies(File cookieFile, String domain) {
-        TextFile textFile = new TextFile();
-        String cookieText = textFile.readFile(cookieFile);
+    private void setCookies(String cookieText, String domain) {
         String[] pairs = cookieText.replace("\\s+", "").split(";");
         List<Cookie> cookies = new ArrayList<>();
         for (String pair : pairs) {

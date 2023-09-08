@@ -35,8 +35,8 @@ public class DefaultWebRequest extends BaseWebRequest implements WebRequest {
         super();
     }
 
-    public DefaultWebRequest(File cookieFile, String domain) {
-        super(cookieFile, domain);
+    public DefaultWebRequest(String cookie, String domain) {
+        super(cookie, domain);
     }
 
     public DefaultWebRequest(Map<String, String> headers) {
