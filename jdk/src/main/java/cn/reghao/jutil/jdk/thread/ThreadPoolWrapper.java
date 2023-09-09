@@ -29,9 +29,9 @@ public class ThreadPoolWrapper {
      */
     public static ExecutorService threadPool(String name, int size) {
         ThreadFactory namedThreadFactory = new ThreadFactoryBuilder().setNameFormat(name + "-pool-%d").build();
-        return new ThreadPoolExecutor(size, 20, 1800L,
+        return new ThreadPoolExecutor(size, size*2, 1800L,
                 TimeUnit.SECONDS,
-                new LinkedBlockingQueue<>(100),
+                new LinkedBlockingQueue<>(size*10),
                 namedThreadFactory,
                 new ThreadPoolExecutor.AbortPolicy());
     }
