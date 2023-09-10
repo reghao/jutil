@@ -73,15 +73,14 @@ public class UrlFormatter {
      * @date 2021-03-15 下午12:38
      */
     public static String getParamValue(String url, String name) {
-        String params = url.toLowerCase().split("\\?")[1];
-        String lname = name.toLowerCase();
+        String params = url.split("\\?")[1];
         for (String kv : params.split("&")) {
             String[] arr = kv.split("=");
             if (arr.length != 2) {
                 return null;
             }
 
-            if (lname.equals(arr[0])) {
+            if (name.equals(arr[0])) {
                 return arr[1];
             }
         }
