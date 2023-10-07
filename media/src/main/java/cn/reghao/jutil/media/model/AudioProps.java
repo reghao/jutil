@@ -37,7 +37,7 @@ public class AudioProps {
         this.bitRate = bitRate;
     }
 
-    public long getBitRate() {
+    public Long getBitRate() {
         return bitRate;
     }
 
@@ -45,7 +45,7 @@ public class AudioProps {
         this.duration = duration;
     }
 
-    public double getDuration() {
+    public Double getDuration() {
         return duration;
     }
 }
