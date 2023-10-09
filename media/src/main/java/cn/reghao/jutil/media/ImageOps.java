@@ -1,15 +1,14 @@
 package cn.reghao.jutil.media;
 
+import net.coobird.thumbnailator.Thumbnails;
+
 import javax.imageio.ImageIO;
 import javax.imageio.ImageReader;
 import javax.imageio.stream.ImageInputStream;
 import javax.imageio.stream.ImageOutputStream;
 import java.awt.*;
 import java.awt.image.BufferedImage;
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
-import java.io.File;
-import java.io.IOException;
+import java.io.*;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Locale;
@@ -21,6 +20,11 @@ import java.util.Locale;
  * @date 2021-08-04 16:26:13
  */
 public class ImageOps {
+    public static Size info(File file) throws IOException {
+        BufferedImage bi = ImageIO.read(file);
+        return new Size(bi.getWidth(), bi.getHeight());
+    }
+
     public static String getFormat(File file) {
         try (ImageInputStream iis = ImageIO.createImageInputStream(file);) {
             Iterator<ImageReader> iterator = ImageIO.getImageReaders(iis);
@@ -40,8 +44,14 @@ public class ImageOps {
         BufferedImage image = ImageIO.read(iis);
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
         ImageOutputStream ios = ImageIO.createImageOutputStream(baos);
-        ImageIO.write(image, "jpg", ios);
+        ImageIO.write(image, "jpeg", ios);
         return baos.toByteArray();
+    }
+
+    public static void convert2jpeg(File srcFile, File destFile) throws IOException {
+        ImageInputStream iis = ImageIO.createImageInputStream(srcFile);
+        BufferedImage image = ImageIO.read(iis);
+        ImageIO.write(image, "jpeg", destFile);
     }
 
     public static byte[] convert2webp(File srcFile) throws IOException {
@@ -53,29 +63,15 @@ public class ImageOps {
         return baos.toByteArray();
     }
 
-    public static byte[] png2jpg(File srcFile) throws IOException {
-        BufferedImage image = ImageIO.read(srcFile);
-        BufferedImage result = new BufferedImage(
-                image.getWidth(),
-                image.getHeight(),
-                BufferedImage.TYPE_INT_RGB);
-        result.createGraphics().drawImage(image, 0, 0, Color.WHITE, null);
-
-        ByteArrayOutputStream baos = new ByteArrayOutputStream();
-        ImageIO.write(result, "jpg", baos);
-        return baos.toByteArray();
+    public static void convert2webp(File srcFile, File destFile) throws IOException {
+        ImageInputStream iis = ImageIO.createImageInputStream(srcFile);
+        BufferedImage image = ImageIO.read(iis);
+        ImageIO.write(image, "webp", destFile);
     }
 
-    public static byte[] jpg2webp(byte[] bytes) throws IOException {
-        BufferedImage bi = ImageIO.read(new ByteArrayInputStream(bytes));
-        ByteArrayOutputStream baos = new ByteArrayOutputStream();
-        ImageIO.write(bi, "webp", baos);
-        return baos.toByteArray();
-    }
-
-    public static Size info(File file) throws IOException {
-        BufferedImage bi = ImageIO.read(file);
-        return new Size(bi.getWidth(), bi.getHeight());
+    public static void convert2thumbnail(File srcFile, File destFile, int width, int height) throws IOException {
+        BufferedImage image = Thumbnails.of(srcFile).size(width, height).asBufferedImage();
+        ImageIO.write(image, "jpeg", destFile);
     }
 
     public static BufferedImage merge(List<BufferedImage> bufferedImages, boolean isVertical) {
@@ -136,8 +132,8 @@ public class ImageOps {
         return newImage;
     }
 
-    public static BufferedImage resize(String imagePath, int size) throws IOException {
-        BufferedImage srcImage = ImageIO.read(new File(imagePath));
+    public static BufferedImage resize(File file, int size) throws IOException {
+        BufferedImage srcImage = ImageIO.read(file);
         int width = srcImage.getWidth()/size;
         int height = srcImage.getHeight()/size;
 
@@ -149,12 +145,12 @@ public class ImageOps {
     }
 
     public static void saveImage(BufferedImage bufferedImage, String filePath) throws IOException {
-        ImageIO.write(bufferedImage, "jpg", new File(filePath));
+        ImageIO.write(bufferedImage, "jpeg", new File(filePath));
     }
 
     public static void saveImage(ByteArrayOutputStream baos, String filePath) throws IOException {
         BufferedImage bufferedImage = ImageIO.read(new ByteArrayInputStream(baos.toByteArray()));
-        ImageIO.write(bufferedImage, "jpg", new File(filePath));
+        ImageIO.write(bufferedImage, "jpeg", new File(filePath));
     }
 
     public static class Size {
