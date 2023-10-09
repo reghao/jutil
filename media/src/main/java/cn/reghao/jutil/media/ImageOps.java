@@ -35,12 +35,21 @@ public class ImageOps {
         return null;
     }
 
-    public static byte[] convert2jpg(File srcFile) throws IOException {
+    public static byte[] convert2jpeg(File srcFile) throws IOException {
         ImageInputStream iis = ImageIO.createImageInputStream(srcFile);
         BufferedImage image = ImageIO.read(iis);
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
         ImageOutputStream ios = ImageIO.createImageOutputStream(baos);
         ImageIO.write(image, "jpg", ios);
+        return baos.toByteArray();
+    }
+
+    public static byte[] convert2webp(File srcFile) throws IOException {
+        ImageInputStream iis = ImageIO.createImageInputStream(srcFile);
+        BufferedImage image = ImageIO.read(iis);
+        ByteArrayOutputStream baos = new ByteArrayOutputStream();
+        ImageOutputStream ios = ImageIO.createImageOutputStream(baos);
+        ImageIO.write(image, "webp", ios);
         return baos.toByteArray();
     }
 
