@@ -1,6 +1,5 @@
 package cn.reghao.jutil.jdk.result;
 
-import cn.reghao.jutil.jdk.converter.DateTimeConverter;
 import cn.reghao.jutil.jdk.serializer.JsonConverter;
 
 import java.util.UUID;
@@ -21,6 +20,13 @@ public class WebResult<T> {
     private WebResult(Integer code, String msg) {
         this.code = code;
         this.msg = msg;
+        this.timestamp = System.currentTimeMillis();
+        this.requestId = UUID.randomUUID().toString().replace("-", "");
+    }
+
+    private WebResult(ResultStatus resultStatus) {
+        this.code = resultStatus.getCode();
+        this.msg = resultStatus.getMsg();
         this.timestamp = System.currentTimeMillis();
         this.requestId = UUID.randomUUID().toString().replace("-", "");
     }
@@ -77,6 +83,11 @@ public class WebResult<T> {
 
     public static <T> String failWithMsg(String msg) {
         WebResult<T> webBody = new WebResult<>(ResultStatus.FAIL.getCode(), msg);
+        return JsonConverter.objectToJson(webBody);
+    }
+
+    public static <T> String notFound() {
+        WebResult<T> webBody = new WebResult<>(ResultStatus.NOTFOUND);
         return JsonConverter.objectToJson(webBody);
     }
 

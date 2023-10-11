@@ -9,6 +9,7 @@ package cn.reghao.jutil.jdk.result;
 public enum ResultStatus {
     SUCCESS(0, "success"),
     FAIL(1, "fail"),
+    NOTFOUND(2, "notfound"),
     ERROR(-1, "error");
 
     private int code;
