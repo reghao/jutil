@@ -58,6 +58,10 @@ public class ServletUtil {
         return map;
     }
 
+    public static String getHeader(String key) {
+        return getRequest().getHeader(key);
+    }
+
     public static String getBearerToken() {
         String auth = getRequest().getHeader("Authorization");
         if (auth == null) {
