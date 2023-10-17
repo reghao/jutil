@@ -51,6 +51,7 @@ public class JsonConverter {
         }
     };
     private static final Gson gson = new GsonBuilder()
+            .disableHtmlEscaping()
             .registerTypeAdapter(LocalDateTime.class, new LocalDateTimeAdapter())
             .registerTypeAdapter(Boolean.class, booleanAsIntAdapter)
             .registerTypeAdapter(boolean.class, booleanAsIntAdapter)
