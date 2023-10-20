@@ -39,6 +39,21 @@ public class ServletUtil {
         return map.get(name);
     }
 
+    public static Cookie getCookie1(String name, ServletRequest servletRequest) {
+        HttpServletRequest request = (HttpServletRequest) servletRequest;
+        Cookie[] cookies = request.getCookies();
+        if (cookies != null) {
+            for (Cookie cookie : cookies) {
+                String name1 = cookie.getName();
+                if (name1.equals(name)) {
+                    return cookie;
+                }
+            }
+        }
+
+        return null;
+    }
+
     public static String getCookie(String name, ServletRequest servletRequest) {
         Map<String, String> map = getCookies(servletRequest);
         return map.get(name);
