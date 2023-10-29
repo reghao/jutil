@@ -3,7 +3,6 @@
 #######################################################################################################################
 #!/bin/bash
 
-cd /home/reghao/code/aha/jutil
-
+mvn clean deploy
 #mvn clean install -am -Dmaven.test.skip -pl jdk
-mvn clean deploy -am -Dmaven.test.skip -pl jdk
+#mvn clean deploy -am -Dmaven.test.skip -pl jdk
