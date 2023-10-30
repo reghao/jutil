@@ -199,7 +199,7 @@ public class DefaultWebRequest extends BaseWebRequest implements WebRequest {
         }
 
         long start = System.currentTimeMillis();
-        try (CloseableHttpResponse response = client.execute(get)) {
+        try (CloseableHttpResponse response = client.execute(get, context)) {
             int statusCode = response.getStatusLine().getStatusCode();
             if (statusCode == 200) {
                 HttpEntity httpEntity = response.getEntity();
