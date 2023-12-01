@@ -12,6 +12,7 @@ public class AppLog implements Serializable {
     private final String app;
     private final String host;
     private final long timestamp;
+    private String dateTimeStr;
     private final String level;
     private final String thread;
     private final String logger;
@@ -37,6 +38,14 @@ public class AppLog implements Serializable {
 
     public long getTimestamp() {
         return timestamp;
+    }
+
+    public void setDateTimeStr(String dateTimeStr) {
+        this.dateTimeStr = dateTimeStr;
+    }
+
+    public String getDateTimeStr() {
+        return dateTimeStr;
     }
 
     public String getLevel() {
