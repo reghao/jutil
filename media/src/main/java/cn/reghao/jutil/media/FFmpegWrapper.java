@@ -9,6 +9,7 @@ import cn.reghao.jutil.media.model.VideoProps;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
+import netscape.javascript.JSObject;
 
 import java.time.LocalDateTime;
 
@@ -97,7 +98,24 @@ public class FFmpegWrapper {
                 }
             }
 
+
             MediaProps mediaProps = new MediaProps(audioProps, videoProps);
+
+            if (format.get("format_name") != null) {
+                String formatName = format.get("format_name").getAsString();
+                mediaProps.setFormatName(formatName);
+            }
+
+            if (format.get("format_long_name") != null) {
+                String formatLongName = format.get("format_long_name").getAsString();
+                mediaProps.setFormatLongName(formatLongName);
+            }
+
+            if (format.get("start_time") != null) {
+                double startTime = format.get("start_time").getAsDouble();
+                mediaProps.setStartTime(startTime);
+            }
+
             // Metadata
             JsonElement tagsElement = format.get("tags");
             if (tagsElement != null) {

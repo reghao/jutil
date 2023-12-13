@@ -9,6 +9,9 @@ import java.time.LocalDateTime;
 public class MediaProps {
     private AudioProps audioProps;
     private VideoProps videoProps;
+    private String formatName;
+    private String formatLongName;
+    private Double startTime;
     private LocalDateTime createTime;
 
     public MediaProps(AudioProps audioProps, VideoProps videoProps) {
@@ -22,6 +25,30 @@ public class MediaProps {
 
     public VideoProps getVideoProps() {
         return videoProps;
+    }
+
+    public void setFormatName(String formatName) {
+        this.formatName = formatName;
+    }
+
+    public String getFormatName() {
+        return formatName;
+    }
+
+    public void setFormatLongName(String formatLongName) {
+        this.formatLongName = formatLongName;
+    }
+
+    public String getFormatLongName() {
+        return formatLongName;
+    }
+
+    public void setStartTime(Double startTime) {
+        this.startTime = startTime;
+    }
+
+    public Double getStartTime() {
+        return startTime;
     }
 
     public void setCreateTime(LocalDateTime createTime) {
