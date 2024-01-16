@@ -54,6 +54,13 @@ public class ImageOps {
         ImageIO.write(image, "jpeg", destFile);
     }
 
+    public static void convertPng(File srcFile, File destFile, String destFormat) throws IOException {
+        BufferedImage pngImage = ImageIO.read(srcFile);
+        BufferedImage newImage = new BufferedImage( pngImage.getWidth(), pngImage.getHeight(), BufferedImage.TYPE_INT_RGB);
+        newImage.createGraphics().drawImage( pngImage, 0, 0, Color.BLACK, null);
+        ImageIO.write(newImage, destFormat, destFile);
+    }
+
     public static byte[] convert2webp(File srcFile) throws IOException {
         ImageInputStream iis = ImageIO.createImageInputStream(srcFile);
         BufferedImage image = ImageIO.read(iis);
