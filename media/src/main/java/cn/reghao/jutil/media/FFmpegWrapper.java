@@ -9,7 +9,6 @@ import cn.reghao.jutil.media.model.VideoProps;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
-import netscape.javascript.JSObject;
 
 import java.time.LocalDateTime;
 
@@ -133,32 +132,32 @@ public class FFmpegWrapper {
     }
 
     public static int formatCovert(String srcPath, String destPath, String format) {
-        String cmd = String.format("%s -loglevel error -y -i '%s' -c:a aac -c:v libx264 -f %s '%s'",
+        String cmd = String.format("%s -loglevel error -y -i \"%s\" -c:a aac -c:v libx264 -f %s \"%s\"",
                 ffmpeg, srcPath, format, destPath);
         return Shell.exec(cmd);
     }
 
     public static int convertAudio(String srcPath, String destPath) {
-        String cmd = String.format("%s -loglevel error -y -i '%s' -c:a aac '%s'", ffmpeg, srcPath, destPath);
+        String cmd = String.format("%s -loglevel error -y -i \"%s\" -c:a aac \"%s\"", ffmpeg, srcPath, destPath);
         return Shell.exec(cmd);
     }
 
     public static int qualityCovert(String srcPath, int width, int height, String destPath) {
         String audioBitRate = "128k";
         String videoBitRate = "1500k";
-        String cmd = String.format("%s -loglevel error -i '%s' -s %sx%s -c:a aac -b:a %s -c:v libx264 -b:v %s -g 90 '%s'",
+        String cmd = String.format("%s -loglevel error -i \"%s\" -s %sx%s -c:a aac -b:a %s -c:v libx264 -b:v %s -g 90 \"%s\"",
                 ffmpeg, srcPath, width, height, audioBitRate, videoBitRate, destPath);
         return Shell.exec(cmd);
     }
 
     public static int split(String srcPath, String audioPath, String videoPath) {
-        String cmd = String.format("%s -loglevel error -y -i '%s' -acodec copy -vn '%s'", ffmpeg, srcPath, audioPath);
+        String cmd = String.format("%s -loglevel error -y -i \"%s\" -acodec copy -vn \"%s\"", ffmpeg, srcPath, audioPath);
         int ret = Shell.exec(cmd);
         if (ret != 0) {
             return ret;
         }
 
-        String cmd1 = String.format("%s -loglevel error -y -i '%s' -vcodec copy –an '%s'", ffmpeg, srcPath, videoPath);
+        String cmd1 = String.format("%s -loglevel error -y -i \"%s\" -vcodec copy –an \"%s\"", ffmpeg, srcPath, videoPath);
         int ret1 = Shell.exec(cmd1);
         if (ret1 != 0) {
             return ret1;
@@ -168,20 +167,20 @@ public class FFmpegWrapper {
     }
 
     public static int merge(String audioPath, String videoPath, String destPath) {
-        String cmd = String.format("%s -loglevel error -y -i '%s' -i %s -codec copy '%s'",
+        String cmd = String.format("%s -loglevel error -y -i \"%s\" -i %s -codec copy \"%s\"",
                 ffmpeg, audioPath, videoPath, destPath);
         return Shell.exec(cmd);
     }
 
     public static int covertToM3u8(String srcPath, String m3u8Path) {
-        String cmd = String.format("%s -loglevel error -i '%s' -c:v libx264 -c:a aac -strict -2 " +
-                "-f hls -hls_list_size 0 -hls_time 10 '%s'", ffmpeg, srcPath, m3u8Path);
+        String cmd = String.format("%s -loglevel error -i \"%s\" -c:v libx264 -c:a aac -strict -2 " +
+                "-f hls -hls_list_size 0 -hls_time 10 \"%s\"", ffmpeg, srcPath, m3u8Path);
         return Shell.exec(cmd);
     }
 
     public static int m3u8ToMp4(String m3u8Dir, String destPath) {
         String cmd = String.format("%s -allowed_extensions ALL -protocol_whitelist \"file,http,crypto,tcp\" " +
-                "-i '%s' -c:a aac -c:v libx264 -f mp4 '%s'", ffmpeg, m3u8Dir, destPath);
+                "-i \"%s\" -c:a aac -c:v libx264 -f mp4 \"%s\"", ffmpeg, m3u8Dir, destPath);
         return Shell.exec(cmd);
     }
 }
