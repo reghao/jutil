@@ -111,10 +111,10 @@ public class TextFile {
         return content.substring(0, index);
     }
 
-    public String readFile(File file) {
+    public String readFile(File file, String charset) {
         StringBuilder content = new StringBuilder();
         try {
-            BufferedReader in =  new BufferedReader(new InputStreamReader(new FileInputStream(file)), bufSize);
+            BufferedReader in =  new BufferedReader(new InputStreamReader(new FileInputStream(file), charset), bufSize);
             String line;
             while ((line = in.readLine()) != null) {
                 content.append(line).append(System.lineSeparator());
