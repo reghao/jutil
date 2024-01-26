@@ -1,6 +1,5 @@
 package cn.reghao.jutil.tool.http;
 
-import cn.reghao.jutil.jdk.text.TextFile;
 import cn.reghao.jutil.tool.http.util.FakeDnsResolver;
 import cn.reghao.jutil.tool.http.util.MyConnectionSocketFactory;
 import cn.reghao.jutil.tool.http.util.MySSLConnectionSocketFactory;
