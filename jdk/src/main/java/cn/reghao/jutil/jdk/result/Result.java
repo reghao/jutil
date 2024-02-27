@@ -16,6 +16,7 @@ public class Result implements Serializable {
 
     private int code;
     private String msg;
+    private String data;
     private final long timestamp;
 
     public Result() {
@@ -36,6 +37,14 @@ public class Result implements Serializable {
 
     public void setMsg(String msg) {
         this.msg = msg;
+    }
+
+    public String getData() {
+        return data;
+    }
+
+    public void setData(String data) {
+        this.data = data;
     }
 
     public long getTimestamp() {
@@ -59,14 +68,15 @@ public class Result implements Serializable {
     public static Result success(String data) {
         Result result = new Result();
         result.setCode(SUCCESS.getCode());
-        result.setMsg(data);
+        result.setMsg(SUCCESS.getMsg());
+        result.setData(data);
         return result;
     }
 
     public static Result success() {
         Result result = new Result();
         result.setCode(SUCCESS.getCode());
-        result.setMsg("success");
+        result.setMsg(SUCCESS.getMsg());
         return result;
     }
 
