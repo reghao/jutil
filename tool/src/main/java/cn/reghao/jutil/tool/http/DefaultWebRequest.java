@@ -108,7 +108,7 @@ public class DefaultWebRequest extends BaseWebRequest implements WebRequest {
     }
 
     @Override
-    public WebResponse upload(String url, UploadParam uploadParam) {
+    public WebResponse upload(String url, UploadParam uploadParam, String token) {
         MultipartEntityBuilder builder = MultipartEntityBuilder.create();
         builder.setMode(HttpMultipartMode.BROWSER_COMPATIBLE);
         builder.setCharset(StandardCharsets.UTF_8);
@@ -129,41 +129,12 @@ public class DefaultWebRequest extends BaseWebRequest implements WebRequest {
         }
 
         HttpPost post = new HttpPost(url);
+        if (token != null) {
+            post.addHeader("Authorization", "Bearer " + token);
+        }
         if (headers != null) {
             headers.forEach(post::addHeader);
         }
-        post.setEntity(builder.build());
-        try (CloseableHttpResponse response = client.execute(post)) {
-            int statusCode = response.getStatusLine().getStatusCode();
-            String body = EntityUtils.toString(response.getEntity(), StandardCharsets.UTF_8);;
-            return new WebResponse(statusCode, body);
-        } catch (Exception e) {
-            return new WebResponse(600, e.getMessage());
-        }
-    }
-
-    public WebResponse upload1(String url, UploadParam uploadParam, long userId) {
-        MultipartEntityBuilder builder = MultipartEntityBuilder.create();
-        builder.setMode(HttpMultipartMode.BROWSER_COMPATIBLE);
-        builder.setCharset(StandardCharsets.UTF_8);
-
-        ContentBody contentBody;
-        if (uploadParam.getFile() != null) {
-            contentBody = new FileBody(uploadParam.getFile());
-        } else if (uploadParam.getBytes() != null) {
-            contentBody = new ByteArrayBody(uploadParam.getBytes(), uploadParam.getMimeType());
-        } else {
-            return new WebResponse(600, "not data in UploadParam");
-        }
-
-        builder.addPart("file", contentBody);
-        Map<String, String> map = uploadParam.getTextParams();
-        if (map != null) {
-            map.forEach(builder::addTextBody);
-        }
-
-        HttpPost post = new HttpPost(url);
-        post.addHeader("x-user-id", ""+userId);
         post.setEntity(builder.build());
         try (CloseableHttpResponse response = client.execute(post)) {
             int statusCode = response.getStatusLine().getStatusCode();

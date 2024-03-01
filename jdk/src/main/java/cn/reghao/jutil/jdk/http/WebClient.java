@@ -68,7 +68,7 @@ public class WebClient implements WebRequest {
     }
 
     @Override
-    public WebResponse upload(String url, UploadParam uploadParam) {
+    public WebResponse upload(String url, UploadParam uploadParam, String token) {
         return null;
     }
 
