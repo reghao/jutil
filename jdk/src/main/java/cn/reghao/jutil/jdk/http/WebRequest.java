@@ -14,6 +14,6 @@ public interface WebRequest {
     WebResponse get(String url);
     WebResponse postFormData(String url, Map<String, String> formData);
     WebResponse postJson(String url, String json);
-    WebResponse upload(String url, UploadParam uploadParam);
+    WebResponse upload(String url, UploadParam uploadParam, String token);
     void download(String url, String referer, String filePath) throws IOException;
 }
