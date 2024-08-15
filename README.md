@@ -25,4 +25,4 @@ mvn clean deploy
 # 安装 jdk 模块到 nexus 仓库
 mvn clean deploy -am -Dmaven.test.skip -pl jdk
 ```
-> nexus 仓库在 pom.xml 文件的 distributionManagement - repository 中指定
+> nexus 仓库在 jutil/pom.xml 文件的 distributionManagement - repository 中指定

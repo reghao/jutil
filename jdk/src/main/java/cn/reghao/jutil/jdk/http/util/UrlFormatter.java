@@ -7,7 +7,7 @@ package cn.reghao.jutil.jdk.http.util;
 public class UrlFormatter {
     /**
      * 从 http/https url 中提取出域名
-     * https://twitter.com/Milkytutu/status/1264213127396114433 -> https://twitter.com
+     * https://rehgao.cn/hao/status/1264213127396114433 -> https://reghao.cn
      *
      * @param
      * @return
@@ -25,7 +25,7 @@ public class UrlFormatter {
 
     /**
      * 从 http/https url 中提取出主机
-     * https://twitter.com/Milkytutu/status/1264213127396114433 -> twitter.com
+     * https://rehgao.cn/hao/status/1264213127396114433 -> reghao.cn
      *
      * @param
      * @return
@@ -40,8 +40,8 @@ public class UrlFormatter {
     }
 
     /**
-     * https://cdn.91p07.com//m3u8/442614/442614.m3u8?st=xHX459guiAmx5CsRJbLXyQ&e=1615796818
-     * -> https://cdn.91p07.com//m3u8/442614
+     * https://cdn.reghao.cn//m3u8/442/442.m3u8?st=xHX459guiAmx5CsRJbLXyQ&e=1615796818
+     * -> https://cdn.reghao.cn//m3u8/442
      *
      * @param
      * @return
@@ -53,8 +53,8 @@ public class UrlFormatter {
     }
 
     /**
-     * https://cdn.91p07.com//m3u8/442614/442614.m3u8?st=xHX459guiAmx5CsRJbLXyQ&e=1615796818
-     * -> https://cdn.91p07.com//m3u8/442614/442614.m3u8
+     * https://cdn.reghao.cn//m3u8/442/442.m3u8?st=xHX459guiAmx5CsRJbLXyQ&e=1615796818
+     * -> https://cdn.reghao.cn//m3u8/442/442.m3u8
      *
      * @param
      * @return
@@ -66,7 +66,7 @@ public class UrlFormatter {
 
     /**
      * 从 url 中取出指定参数的值
-     * http://91porn.com/uprofile.php?UID=b583fKPwaC8HuUDsIRbfEq9scGe1J90POTljHJwUJ998WRZq -> UID
+     * http://reghao.cn/user/profile?uid=b583fKPwaC8HuUDsIRbfEq9scGe1J90POTljHJwUJ998WRZq -> uid
      *
      * @param
      * @return
@@ -89,7 +89,7 @@ public class UrlFormatter {
     }
 
     /**
-     * https://video.twimg.com/ext_tw_video/1351933827732525056/pu/vid/3000/6000/320x544/RTM9oDMcLYnTfg_k.ts?name=value
+     * https://oss.reghao.cn/video/m3u8/3000/6000/320x544/RTM9oDMcLYnTfg_k.ts?name=value
      * -> RTM9oDMcLYnTfg_k.ts
      *
      * @param
@@ -103,8 +103,8 @@ public class UrlFormatter {
     }
 
     /**
-     * https://cdn.91p07.com//m3u8/442614/442614.m3u8?st=xHX459guiAmx5CsRJbLXyQ&e=1615796818 ->
-     * https://cdn.91p07.com//m3u8/442614/442614.m3u8
+     * https://cdn.reghao.cn//m3u8/442/442.m3u8?st=xHX459guiAmx5CsRJbLXyQ&e=1615796818 ->
+     * https://cdn.reghao.cn//m3u8/442/442.m3u8
      *
      * @param
      * @return
@@ -116,7 +116,7 @@ public class UrlFormatter {
 
     /**
      * 提取 uri
-     * http://static.reghao.icu/tnb/vid/img/vidcover/eY9G0Zpnqe.jpg -> /tnb/vid/img/vidcover/eY9G0Zpnqe.jpg
+     * http://oss.reghao.cn/tnb/vid/img/vidcover/eY9G0Zpnqe.jpg -> /tnb/vid/img/vidcover/eY9G0Zpnqe.jpg
      *
      * @param
      * @return
