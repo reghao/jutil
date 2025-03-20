@@ -11,15 +11,15 @@ import java.util.Objects;
  * @author reghao
  * @date 2023-03-24 10:32:58
  */
-public class FilePart {
+public class FileSplitter {
     private final int partSize;
 
-    public FilePart() {
+    public FileSplitter() {
         // 10MiB
         this.partSize = 10*1024*1024;
     }
 
-    public FilePart(int len) {
+    public FileSplitter(int len) {
         this.partSize = len*1024*1024;
     }
 
@@ -38,7 +38,7 @@ public class FilePart {
 
         for (int i = 0; i < total; i++) {
             long start = (long) i*partSize;
-            byte[] part = getPart(file.getAbsolutePath(), partSize, start);
+            byte[] part = getPart(file.getAbsolutePath(), start);
             if (part.length == 0) {
                 break;
             }
@@ -56,7 +56,7 @@ public class FilePart {
         }
     }
 
-    public byte[] getPart(String absolutePath, int partSize, long start) throws IOException {
+    public byte[] getPart(String absolutePath, long start) throws IOException {
         RandomAccessFile raf = new RandomAccessFile(absolutePath, "r");
         raf.seek(start);
 

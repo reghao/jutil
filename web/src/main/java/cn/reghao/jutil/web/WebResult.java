@@ -1,8 +1,8 @@
-package cn.reghao.jutil.jdk.result;
+package cn.reghao.jutil.web;
 
+import cn.reghao.jutil.jdk.result.Result;
+import cn.reghao.jutil.jdk.result.ResultStatus;
 import cn.reghao.jutil.jdk.serializer.JsonConverter;
-
-import java.util.UUID;
 
 /**
  * HTTP 响应 body 数据
@@ -10,7 +10,6 @@ import java.util.UUID;
  * @author reghao
  * @date 2022-01-07 14:05:35
  */
-@Deprecated
 public class WebResult<T> {
     private final int code;
     private final String msg;
@@ -22,14 +21,14 @@ public class WebResult<T> {
         this.code = code;
         this.msg = msg;
         this.timestamp = System.currentTimeMillis();
-        this.requestId = UUID.randomUUID().toString().replace("-", "");
+        this.requestId = ServletUtil.getHeader("x-request-id");
     }
 
     private WebResult(ResultStatus resultStatus) {
         this.code = resultStatus.getCode();
         this.msg = resultStatus.getMsg();
         this.timestamp = System.currentTimeMillis();
-        this.requestId = UUID.randomUUID().toString().replace("-", "");
+        this.requestId = ServletUtil.getHeader("x-request-id");
     }
 
     public int getCode() {

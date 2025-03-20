@@ -222,11 +222,19 @@ public class TextFile {
     }
 
     public void append(String filePath, List<String> lines) throws IOException {
-        int bufSize = 8*1024*1024;
-        BufferedWriter out = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(filePath)), bufSize);
-        for (String line : lines) {
-            out.append(line);
+        File file = new File(filePath);
+        RandomAccessFile raf = new RandomAccessFile(file, "rw");
+        String line = raf.readLine();
+        while (line != null) {
+            line = raf.readLine();
         }
-        out.close();
+
+        for (String str : lines) {
+            String str1 = str + System.lineSeparator();
+            // 调用 writeChars 方法会出现多余的空格,因为这个方法以 2 字节为基准
+            raf.write(str1.getBytes());
+        }
+
+        raf.close();
     }
 }

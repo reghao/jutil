@@ -1,11 +1,15 @@
 package cn.reghao.jutil.jdk.security;
 
+import cn.reghao.jutil.jdk.text.TextFile;
+
 import javax.crypto.Cipher;
+import java.io.File;
 import java.nio.charset.StandardCharsets;
 import java.security.*;
 import java.security.interfaces.RSAPrivateKey;
 import java.security.interfaces.RSAPublicKey;
 import java.security.spec.EncodedKeySpec;
+import java.security.spec.InvalidKeySpecException;
 import java.security.spec.PKCS8EncodedKeySpec;
 import java.security.spec.X509EncodedKeySpec;
 import java.util.Base64;
@@ -40,6 +44,95 @@ public class RsaCryptor {
         keyMap.put("prikey", privateKeyStr);
         keyMap.put("pubkey", publicKeyStr);
         return keyMap;
+    }
+
+    public static Map<String, Object> getRsaPair(String baseDir) throws NoSuchAlgorithmException {
+        KeyPairGenerator keyPairGenerator = KeyPairGenerator.getInstance(ALGORITHM);
+        keyPairGenerator.initialize(KEY_LENGTH, new SecureRandom());
+        KeyPair keyPair = keyPairGenerator.generateKeyPair();
+        RSAPrivateKey privateKey = (RSAPrivateKey) keyPair.getPrivate();
+        RSAPublicKey publicKey = (RSAPublicKey) keyPair.getPublic();
+
+        String privateKeyStr = new String(encoder.encode(privateKey.getEncoded()));
+        String privateKeyPath = String.format("%s/private.pem", baseDir);
+        savePemFile(privateKeyStr, privateKeyPath);
+
+        String publicKeyStr = new String(encoder.encode(publicKey.getEncoded()));
+        String publicKeyPath = String.format("%s/public.pem", baseDir);
+        savePemFile(publicKeyStr, publicKeyPath);
+
+        Map<String, Object> keyMap = new HashMap<>();
+        keyMap.put("privateKey", privateKey);
+        keyMap.put("publicKey", publicKey);
+        return keyMap;
+    }
+
+    private static void savePemFile(String keyStr, String filePath) {
+        try {
+            textFile.write(new File(filePath), keyStr);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    static TextFile textFile = new TextFile();
+    public static Map<String, Object> loadRsaPair(String baseDir) throws NoSuchAlgorithmException, InvalidKeySpecException {
+        String publicKeyPath = String.format("%s/public.pem", baseDir);
+        String publicKeyStr = textFile.readFile(publicKeyPath);
+        byte[] decoded = decoder.decode(publicKeyStr.getBytes(StandardCharsets.UTF_8));
+        EncodedKeySpec encodedKeySpec = new X509EncodedKeySpec(decoded);
+        RSAPublicKey rsaPublicKey = (RSAPublicKey) KeyFactory.getInstance(ALGORITHM).generatePublic(encodedKeySpec);
+
+        String privateKeyPath = String.format("%s/private.pem", baseDir);
+        String privateKeyStr = textFile.readFile(privateKeyPath);
+        byte[] decoded1 = decoder.decode(privateKeyStr.getBytes(StandardCharsets.UTF_8));
+        EncodedKeySpec encodedKeySpec1 = new PKCS8EncodedKeySpec(decoded1);
+        RSAPrivateKey rsaPrivateKey = (RSAPrivateKey) KeyFactory.getInstance(ALGORITHM).generatePrivate(encodedKeySpec1);
+
+        Map<String, Object> keyMap = new HashMap<>();
+        keyMap.put("privateKey", rsaPrivateKey);
+        keyMap.put("publicKey", rsaPublicKey);
+        return keyMap;
+    }
+
+    public static RSAPublicKey getRSAPublicKey(File pemFile) {
+        String publicKeyStr = textFile.readFile(pemFile.getAbsolutePath());
+        return getRSAPublicKey(publicKeyStr);
+    }
+
+    public static RSAPublicKey getRSAPublicKey(String publicKeyStr) {
+        byte[] decoded = decoder.decode(publicKeyStr.getBytes(StandardCharsets.UTF_8));
+        EncodedKeySpec encodedKeySpec = new X509EncodedKeySpec(decoded);
+        try {
+            RSAPublicKey rsaPublicKey = (RSAPublicKey) KeyFactory.getInstance(ALGORITHM).generatePublic(encodedKeySpec);
+            return rsaPublicKey;
+        } catch (InvalidKeySpecException e) {
+            e.printStackTrace();
+        } catch (NoSuchAlgorithmException e) {
+            e.printStackTrace();
+        }
+
+        return null;
+    }
+
+    public static RSAPrivateKey getRSAPrivateKey(File pemFile) {
+        String privateKeyStr = textFile.readFile(pemFile.getAbsolutePath());
+        return getRSAPrivateKey(privateKeyStr);
+    }
+
+    public static RSAPrivateKey getRSAPrivateKey(String privateKeyStr) {
+        byte[] decoded1 = decoder.decode(privateKeyStr.getBytes(StandardCharsets.UTF_8));
+        EncodedKeySpec encodedKeySpec1 = new PKCS8EncodedKeySpec(decoded1);
+        try {
+            RSAPrivateKey rsaPrivateKey = (RSAPrivateKey) KeyFactory.getInstance(ALGORITHM).generatePrivate(encodedKeySpec1);
+            return rsaPrivateKey;
+        } catch (InvalidKeySpecException e) {
+            e.printStackTrace();
+        } catch (NoSuchAlgorithmException e) {
+            e.printStackTrace();
+        }
+
+        return null;
     }
 
     public static String encrypt(String pText, String publicKey) throws Exception {

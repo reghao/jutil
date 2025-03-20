@@ -38,6 +38,10 @@ public class PageList<T> implements Serializable {
         return new PageList<>(pageNumber, pageSize, total, list);
     }
 
+    public static <T> PageList<T> pageList(Page page, int total, List<T> list) {
+        return new PageList<>(page.getPage(), page.getSize(), total, list);
+    }
+
     public static <T> PageList<T> pageList(int pageNumber, int pageSize, int total, String lastId, List<T> list) {
         return new PageList<>(pageNumber, pageSize, total, lastId, list);
     }

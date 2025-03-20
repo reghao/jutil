@@ -2,6 +2,8 @@ package cn.reghao.jutil.tool.id;
 
 import org.hashids.Hashids;
 
+import java.util.concurrent.ThreadLocalRandom;
+
 /**
  * @author reghao
  * @date 2021-11-22 14:05:13
@@ -34,7 +36,8 @@ public class IdGenerator {
      * @date 2021-12-24 上午11:30
      */
     public String stringId() {
-        long nextId = snowFlake.nextId();
+        //long nextId = snowFlake.nextId();
+        long nextId = ThreadLocalRandom.current().nextLong(Hashids.MAX_NUMBER);
         return hashids.encode(nextId);
     }
 }

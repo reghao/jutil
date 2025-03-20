@@ -14,7 +14,7 @@ import java.util.Locale;
  * @date 2020-03-20 10:20:01
  */
 public class DateTimeConverter {
-    private final static String dateTimePattern = "yyyy-MM-dd HH:mm:ss";
+    private final static String dateTimePattern = "yyyy-MM-dd HH:mm:ss.SSS";
 
     /**
      * 将 LocalDateTime 对象格式化为 yyyy-MM-dd HH:mm:ss 格式的字符串
