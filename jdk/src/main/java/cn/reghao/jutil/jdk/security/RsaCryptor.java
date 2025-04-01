@@ -67,7 +67,7 @@ public class RsaCryptor {
         return keyMap;
     }
 
-    private static void savePemFile(String keyStr, String filePath) {
+    public static void savePemFile(String keyStr, String filePath) {
         try {
             textFile.write(new File(filePath), keyStr);
         } catch (Exception e) {
