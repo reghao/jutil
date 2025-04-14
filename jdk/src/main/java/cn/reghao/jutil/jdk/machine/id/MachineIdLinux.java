@@ -53,20 +53,22 @@ public class MachineIdLinux implements MachineId {
                 NetworkInterface iface = interfaces.nextElement();
                 String ifaceName = iface.getName();
                 // 过滤掉 localhost 和虚拟网卡
-                if (ifaceName.startsWith("lo") || ifaceName.startsWith("docker")
-                        || ifaceName.startsWith("v") || ifaceName.startsWith("br")) {
-                    continue;
-                }
-                Enumeration<InetAddress> inetAddrs = iface.getInetAddresses();
-                while (inetAddrs.hasMoreElements()) {
-                    InetAddress address = inetAddrs.nextElement();
-                    if (!address.isLoopbackAddress()) {
-                        if (address instanceof Inet4Address) {
-                            list.add(address.getHostAddress());
+                if (ifaceName.startsWith("enp")
+                        || ifaceName.startsWith("wlp")
+                        || ifaceName.startsWith("eth")
+                        || ifaceName.startsWith("wlan")
+                        || ifaceName.startsWith("em")) {
+                    Enumeration<InetAddress> inetAddrs = iface.getInetAddresses();
+                    while (inetAddrs.hasMoreElements()) {
+                        InetAddress address = inetAddrs.nextElement();
+                        if (!address.isLoopbackAddress()) {
+                            if (address instanceof Inet4Address) {
+                                list.add(address.getHostAddress());
+                            } else if (address instanceof Inet6Address) {
+                            }
                         }
                     }
                 }
-
             }
         } catch (SocketException e) {
             e.printStackTrace();
