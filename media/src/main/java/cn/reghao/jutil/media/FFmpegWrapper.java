@@ -131,9 +131,28 @@ public class FFmpegWrapper {
         return null;
     }
 
+    @Deprecated
     public static int formatCovert(String srcPath, String destPath, String format) {
         String cmd = String.format("%s -loglevel error -y -i \"%s\" -c:a aac -c:v libx264 -f %s \"%s\"",
                 ffmpeg, srcPath, format, destPath);
+        return Shell.exec(cmd);
+    }
+
+    public static int convert2AacH264(String srcPath, String destPath, String format) {
+        String cmd = String.format("%s -loglevel error -y " +
+                        "-i \"%s\" " +
+                        "-c:a aac -c:v libx264 " +
+                        "-f %s \"%s\"",
+                ffmpeg, srcPath, format, destPath);
+        return Shell.exec(cmd);
+    }
+
+    public static int convert2AacH264(String srcPath, String destPath, String format, int subIndex) {
+        String cmd = String.format("%s -loglevel error -y " +
+                        "-i \"%s\" -vf subtitles=\"%s\":si=%s " +
+                        "-c:a aac -c:v libx264 " +
+                        "-f %s \"%s\"",
+                ffmpeg, srcPath, srcPath, subIndex, format, destPath);
         return Shell.exec(cmd);
     }
 
