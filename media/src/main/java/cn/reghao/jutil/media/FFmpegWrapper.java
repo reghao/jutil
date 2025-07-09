@@ -197,9 +197,18 @@ public class FFmpegWrapper {
         return Shell.exec(cmd);
     }
 
-    public static int m3u8ToMp4(String m3u8Dir, String destPath) {
-        String cmd = String.format("%s -allowed_extensions ALL -protocol_whitelist \"file,http,crypto,tcp\" " +
-                "-i \"%s\" -c:a aac -c:v libx264 -f mp4 \"%s\"", ffmpeg, m3u8Dir, destPath);
+    /**
+     * 将 m3u8 的 ts 分片合并为 mp4 文件
+     *
+     * @param tsListPath 格式
+     * file a/b/0.ts
+     * file a/b/1.ts
+     * @return
+     * @date 2025-07-09 17:37:07
+     */
+    public static int m3u8ToMp4(String tsListPath, String destPath) {
+        String cmd = String.format("%s -loglevel error " +
+                "-f concat -safe 0 -i \"%s\" -c:a aac -c:v libx264 \"%s\"", ffmpeg, tsListPath, destPath);
         return Shell.exec(cmd);
     }
 }
