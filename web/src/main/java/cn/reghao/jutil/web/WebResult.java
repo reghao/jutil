@@ -31,6 +31,13 @@ public class WebResult<T> {
         this.requestId = ServletUtil.getHeader("x-request-id");
     }
 
+    private WebResult(String msg) {
+        this.code = ResultStatus.SUCCESS.getCode();
+        this.msg = msg;
+        this.timestamp = System.currentTimeMillis();
+        this.requestId = "";
+    }
+
     public int getCode() {
         return code;
     }
@@ -98,6 +105,11 @@ public class WebResult<T> {
 
     public static <T> String errorWithMsg(String msg) {
         WebResult<T> webBody = new WebResult<>(ResultStatus.ERROR.getCode(), msg);
+        return JsonConverter.objectToJson(webBody);
+    }
+
+    public static <T> String fallback(String msg) {
+        WebResult<T> webBody = new WebResult<>(msg);
         return JsonConverter.objectToJson(webBody);
     }
 }
