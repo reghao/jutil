@@ -34,6 +34,11 @@ public class TextFile {
      * @date 2019-09-02 上午12:22
      */
     public List<String> read(String filePath) {
+        String charset = "utf-8";
+        return read(filePath, charset);
+    }
+
+    public List<String> read(String filePath, String charset) {
         File file = new File(filePath);
         if (!file.exists()) {
             return null;
@@ -41,7 +46,7 @@ public class TextFile {
 
         List<String> lines = new ArrayList<>();
         try {
-            BufferedReader in =  new BufferedReader(new InputStreamReader(new FileInputStream(file)), bufSize);
+            BufferedReader in =  new BufferedReader(new InputStreamReader(new FileInputStream(file), charset), bufSize);
             String line;
             while ((line = in.readLine()) != null) {
                 lines.add(clearWhiteSpace(line));
