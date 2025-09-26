@@ -1,7 +1,9 @@
 package cn.reghao.jutil.jdk.converter;
 
-import java.util.HashMap;
-import java.util.Map;
+import java.math.BigDecimal;
+import java.math.RoundingMode;
+import java.text.DecimalFormat;
+import java.util.*;
 
 /**
  * 字节单位转换器
@@ -11,10 +13,12 @@ import java.util.Map;
  */
 public class ByteConverter {
     private final Map<Integer, String> map = new HashMap<>();
+    private final Map<Long, ByteType> map1 = new HashMap<>();
 
     public ByteConverter() {
         for (ByteType byteType : ByteType.values()) {
             map.put(byteType.ordinal(), byteType.name());
+            map1.put(byteType.getValue(), byteType);
         }
     }
 
@@ -37,18 +41,26 @@ public class ByteConverter {
         }
     }
 
-    public long convert(ByteType src, ByteType dest, long value) {
-        for (int i = src.ordinal(); i < dest.ordinal(); i++) {
-            value = value >> 10;
+    /**
+     * @param value 单位为 byte, 且值不大于 ByteType.PiB
+     * @return 精度为两位小数
+     * @date 2025-09-26 14:42:55
+     */
+    public String convert(long value) {
+        List<Long> list = new ArrayList<>(map1.keySet());
+        Collections.sort(list);
+        int i = list.size()-1;
+        for (; i > 0; i--) {
+            if (value > list.get(i)) {
+                break;
+            }
         }
+        ByteType byteType = map1.get(list.get(i));
 
-        return value;
-    }
-
-    public String convertStr(ByteType src, ByteType dest, long value) {
-        for (int i = src.ordinal(); i < dest.ordinal(); i++) {
-            value = value >> 10;
-        }
-        return value + dest.name();
+        int scale = 2;
+        BigDecimal b1 = new BigDecimal(value);
+        BigDecimal b2 = new BigDecimal(byteType.getValue());
+        BigDecimal result = b1.divide(b2, scale, RoundingMode.HALF_UP);
+        return String.format("%s%s", result, byteType.name());
     }
 }

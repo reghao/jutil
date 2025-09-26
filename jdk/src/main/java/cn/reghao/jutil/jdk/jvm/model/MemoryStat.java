@@ -1,7 +1,6 @@
 package cn.reghao.jutil.jdk.jvm.model;
 
 import cn.reghao.jutil.jdk.converter.ByteConverter;
-import cn.reghao.jutil.jdk.converter.ByteType;
 
 import java.lang.management.MemoryUsage;
 
@@ -17,9 +16,9 @@ public class MemoryStat {
 
     public MemoryStat(MemoryUsage memoryUsage) {
         ByteConverter convert = new ByteConverter();
-        this.init = convert.convertStr(ByteType.Bytes, ByteType.MiB, memoryUsage.getInit());
-        this.max = convert.convertStr(ByteType.Bytes, ByteType.MiB, memoryUsage.getMax());
-        this.used = convert.convertStr(ByteType.Bytes, ByteType.MiB, memoryUsage.getUsed());
-        this.committed = convert.convertStr(ByteType.Bytes, ByteType.MiB, memoryUsage.getCommitted());
+        this.init = convert.convert(memoryUsage.getInit());
+        this.max = convert.convert(memoryUsage.getMax());
+        this.used = convert.convert(memoryUsage.getUsed());
+        this.committed = convert.convert(memoryUsage.getCommitted());
     }
 }
