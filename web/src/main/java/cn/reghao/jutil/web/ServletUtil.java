@@ -162,11 +162,6 @@ public class ServletUtil {
     }
 
     public static GatewayLog getGatewayLog(HttpServletRequest request) {
-        String uri = request.getRequestURI();
-        String method = request.getMethod();
-        String host = request.getHeader("host");
-        String referer = request.getHeader("referer");
-        String userAgent = request.getHeader("user-agent");
         String remoteAddr = request.getRemoteAddr();
         int remotePort = request.getRemotePort();
 
@@ -186,11 +181,11 @@ public class ServletUtil {
         String requestMethod = request.getMethod();
         String requestBody = "";
 
-        int statusCode = 200;
+        int statusCode = getResponse().getStatus();
         Map<String, String> responseHeaders = new HashMap<>();
         String responseBody = "";
-        long responseTime = 0L;
-        long executeTime = 0L;
+        long responseTime = System.currentTimeMillis();
+        long executeTime = responseTime - requestTime;
 
         String realRemoteAddr = requestHeaders.get("X-Real-Remote");
         if (realRemoteAddr != null && !realRemoteAddr.isBlank()) {
@@ -199,6 +194,7 @@ public class ServletUtil {
 
         GatewayLog gatewayLog = new GatewayLog(requestId, requestTime, requestUrl, requestMethod, requestHeaders,
                 remoteAddr, remotePort, statusCode, responseHeaders, responseTime);
+        gatewayLog.setExecuteTime(executeTime);
         return gatewayLog;
     }
 }
