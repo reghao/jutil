@@ -1,4 +1,4 @@
-package cn.reghao.jutil.validator;
+package cn.reghao.jutil.web.validator;
 
 import cn.reghao.jutil.jdk.clazz.ClassUtil;
 

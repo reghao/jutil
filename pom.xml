@@ -12,7 +12,6 @@
         <module>jdk</module>
         <module>tool</module>
         <module>web</module>
-        <module>validator</module>
         <module>media</module>
     </modules>
 

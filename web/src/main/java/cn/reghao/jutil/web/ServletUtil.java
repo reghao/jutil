@@ -1,6 +1,7 @@
 package cn.reghao.jutil.web;
 
 import cn.reghao.jutil.jdk.serializer.JsonConverter;
+import cn.reghao.jutil.web.log.GatewayLog;
 import org.springframework.util.StringUtils;
 import org.springframework.web.context.request.RequestContextHolder;
 import org.springframework.web.context.request.ServletRequestAttributes;
@@ -12,6 +13,7 @@ import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 import java.io.BufferedReader;
 import java.io.IOException;
+import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -152,5 +154,51 @@ public class ServletUtil {
 
     private static ServletRequestAttributes getServletRequest(){
         return (ServletRequestAttributes) RequestContextHolder.getRequestAttributes();
+    }
+
+    public static GatewayLog getGatewayLog() {
+        HttpServletRequest request = ServletUtil.getRequest();
+        return getGatewayLog(request);
+    }
+
+    public static GatewayLog getGatewayLog(HttpServletRequest request) {
+        String uri = request.getRequestURI();
+        String method = request.getMethod();
+        String host = request.getHeader("host");
+        String referer = request.getHeader("referer");
+        String userAgent = request.getHeader("user-agent");
+        String remoteAddr = request.getRemoteAddr();
+        int remotePort = request.getRemotePort();
+
+        Map<String, String> requestHeaders = new HashMap<>();
+        Enumeration<String> headerNames = request.getHeaderNames();
+        while (headerNames.hasMoreElements()) {
+            String headerName = headerNames.nextElement();
+            String headerValue = request.getHeader(headerName);
+            requestHeaders.put(headerName, headerValue);
+        }
+
+        String requestId = (String) request.getAttribute("x-request-id");
+        long requestTime = (Long) request.getAttribute("x-request-time");
+        String targetRoute = "";
+        String targetService = "";
+        String requestUrl = request.getRequestURI();
+        String requestMethod = request.getMethod();
+        String requestBody = "";
+
+        int statusCode = 200;
+        Map<String, String> responseHeaders = new HashMap<>();
+        String responseBody = "";
+        long responseTime = 0L;
+        long executeTime = 0L;
+
+        String realRemoteAddr = requestHeaders.get("X-Real-Remote");
+        if (realRemoteAddr != null && !realRemoteAddr.isBlank()) {
+            remoteAddr = realRemoteAddr;
+        }
+
+        GatewayLog gatewayLog = new GatewayLog(requestId, requestTime, requestUrl, requestMethod, requestHeaders,
+                remoteAddr, remotePort, statusCode, responseHeaders, responseTime);
+        return gatewayLog;
     }
 }

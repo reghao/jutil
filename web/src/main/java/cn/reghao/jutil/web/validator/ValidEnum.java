@@ -1,4 +1,4 @@
-package cn.reghao.jutil.validator;
+package cn.reghao.jutil.web.validator;
 
 import javax.validation.Constraint;
 import javax.validation.Payload;
