@@ -173,8 +173,8 @@ public class ServletUtil {
             requestHeaders.put(headerName, headerValue);
         }
 
-        String requestId = (String) request.getAttribute("x-request-id");
-        long requestTime = (Long) request.getAttribute("x-request-time");
+        String requestId = (String) request.getAttribute(HeaderKeys.XRequestId);
+        long requestTime = (Long) request.getAttribute(HeaderKeys.XRequestTime);
         String targetRoute = "";
         String targetService = "";
         String requestUrl = request.getRequestURI();
@@ -187,7 +187,7 @@ public class ServletUtil {
         long responseTime = System.currentTimeMillis();
         long executeTime = responseTime - requestTime;
 
-        String realRemoteAddr = requestHeaders.get("X-Real-Remote");
+        String realRemoteAddr = requestHeaders.get(HeaderKeys.XRealRemote);
         if (realRemoteAddr != null && !realRemoteAddr.isBlank()) {
             remoteAddr = realRemoteAddr;
         }

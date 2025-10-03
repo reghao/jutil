@@ -21,14 +21,14 @@ public class WebResult<T> {
         this.code = code;
         this.msg = msg;
         this.timestamp = System.currentTimeMillis();
-        this.requestId = ServletUtil.getHeader("x-request-id");
+        this.requestId = ServletUtil.getHeader(HeaderKeys.XRequestId);
     }
 
     private WebResult(ResultStatus resultStatus) {
         this.code = resultStatus.getCode();
         this.msg = resultStatus.getMsg();
         this.timestamp = System.currentTimeMillis();
-        this.requestId = ServletUtil.getHeader("x-request-id");
+        this.requestId = ServletUtil.getHeader(HeaderKeys.XRequestId);
     }
 
     private WebResult(String msg) {
