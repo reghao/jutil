@@ -3,6 +3,7 @@ package cn.reghao.jutil.web;
 import cn.reghao.jutil.jdk.serializer.JsonConverter;
 import cn.reghao.jutil.web.log.GatewayLog;
 import org.springframework.util.StringUtils;
+import org.springframework.web.context.request.RequestAttributes;
 import org.springframework.web.context.request.RequestContextHolder;
 import org.springframework.web.context.request.ServletRequestAttributes;
 
@@ -145,15 +146,30 @@ public class ServletUtil {
     }
 
     public static HttpServletRequest getRequest(){
-        return getServletRequest().getRequest();
+        ServletRequestAttributes servletRequestAttributes = getServletRequest();
+        if (servletRequestAttributes != null) {
+            return servletRequestAttributes.getRequest();
+        }
+
+        return null;
     }
 
     public static HttpServletResponse getResponse(){
-        return getServletRequest().getResponse();
+        ServletRequestAttributes servletRequestAttributes = getServletRequest();
+        if (servletRequestAttributes != null) {
+            return servletRequestAttributes.getResponse();
+        }
+
+        return null;
     }
 
     private static ServletRequestAttributes getServletRequest(){
-        return (ServletRequestAttributes) RequestContextHolder.getRequestAttributes();
+        RequestAttributes requestAttributes = RequestContextHolder.getRequestAttributes();
+        if (requestAttributes instanceof ServletRequestAttributes) {
+            return (ServletRequestAttributes) requestAttributes;
+        }
+
+        return null;
     }
 
     public static GatewayLog getGatewayLog() {
