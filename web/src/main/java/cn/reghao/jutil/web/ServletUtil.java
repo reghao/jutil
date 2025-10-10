@@ -1,7 +1,7 @@
 package cn.reghao.jutil.web;
 
 import cn.reghao.jutil.jdk.serializer.JsonConverter;
-import cn.reghao.jutil.web.log.GatewayLog;
+import cn.reghao.jutil.jdk.result.GatewayLog;
 import org.springframework.util.StringUtils;
 import org.springframework.web.context.request.RequestAttributes;
 import org.springframework.web.context.request.RequestContextHolder;
