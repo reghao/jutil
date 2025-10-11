@@ -104,7 +104,7 @@ public class ServletUtil {
     }
 
     public static HttpSession getSession() {
-        return getRequest().getSession();
+        return getRequest().getSession(false);
     }
 
     public static String getBody() throws IOException {
@@ -130,7 +130,13 @@ public class ServletUtil {
     }
 
     public static String getSessionId() {
-        return getRequest().getSession().getId();
+        String sessionId = "";
+        HttpSession httpSession = getRequest().getSession();
+        if (httpSession != null) {
+            sessionId = httpSession.getId();
+        }
+
+        return sessionId;
     }
 
     /**
