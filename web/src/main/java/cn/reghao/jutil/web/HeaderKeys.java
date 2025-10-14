@@ -7,5 +7,8 @@ package cn.reghao.jutil.web;
 public class HeaderKeys {
     public static String XRequestId = "x-request-id";
     public static String XRequestTime = "x-request-time";
+    // proxy protocol 协议设置的 remote address
     public static String XRealRemote = "X-Real-Remote";
+    // nginx 反向代理设置的 remote address
+    public static String XRealIP = "X-Real-IP";
 }

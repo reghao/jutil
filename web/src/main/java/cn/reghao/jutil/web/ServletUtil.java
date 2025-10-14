@@ -209,6 +209,11 @@ public class ServletUtil {
         long responseTime = System.currentTimeMillis();
         long executeTime = responseTime - requestTime;
 
+        String realIP = requestHeaders.get(HeaderKeys.XRealIP);
+        if (realIP != null && !realIP.isBlank()) {
+            remoteAddr = realIP;
+        }
+
         String realRemoteAddr = requestHeaders.get(HeaderKeys.XRealRemote);
         if (realRemoteAddr != null && !realRemoteAddr.isBlank()) {
             remoteAddr = realRemoteAddr;
