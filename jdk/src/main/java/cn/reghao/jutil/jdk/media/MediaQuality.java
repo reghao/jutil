@@ -1,4 +1,4 @@
-package cn.reghao.jutil.media;
+package cn.reghao.jutil.jdk.media;
 
 /**
  * 视频质量

@@ -1,11 +1,11 @@
-package cn.reghao.jutil.media;
+package cn.reghao.jutil.jdk.media;
 
 import cn.reghao.jutil.jdk.converter.DateTimeConverter;
 import cn.reghao.jutil.jdk.serializer.JsonConverter;
 import cn.reghao.jutil.jdk.shell.Shell;
-import cn.reghao.jutil.media.model.AudioProps;
-import cn.reghao.jutil.media.model.MediaProps;
-import cn.reghao.jutil.media.model.VideoProps;
+import cn.reghao.jutil.jdk.media.model.AudioProps;
+import cn.reghao.jutil.jdk.media.model.MediaProps;
+import cn.reghao.jutil.jdk.media.model.VideoProps;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;

@@ -1,4 +1,4 @@
-package cn.reghao.jutil.media;
+package cn.reghao.jutil.jdk.media;
 
 import net.coobird.thumbnailator.Thumbnails;
 
