@@ -1,6 +1,7 @@
 package cn.reghao.jutil.tool.jwt;
 
 import io.jsonwebtoken.Claims;
+import io.jsonwebtoken.JwtParser;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
 
@@ -42,7 +43,10 @@ public class Jwt {
      * @date 2021-07-27 下午2:37
      */
     public static JwtPayload parse(String token, String signKey) {
-        Claims claims = Jwts.parser().setSigningKey(signKey).parseClaimsJws(token).getBody();
+        JwtParser jwtParser = Jwts.parser().setSigningKey(signKey).build();
+        Claims claims = (Claims) jwtParser.parse(token);
+        //Claims claims0 = Jwts.parser().setSigningKey(signKey).parseClaimsJws(token).getBody();
+
         String username = claims.getSubject();
         String roles = (String) claims.get("authorities");
         Integer loginType = (Integer) claims.get("loginType");
