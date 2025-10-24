@@ -1,4 +1,4 @@
-package cn.reghao.jutil.jdk.media;
+package cn.reghao.jutil.jdk.model.media;
 
 /**
  * 视频图像分辨率
