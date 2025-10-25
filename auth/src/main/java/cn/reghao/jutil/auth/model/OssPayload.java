@@ -1,4 +1,4 @@
-package cn.reghao.jutil.jdk.model.jwt;
+package cn.reghao.jutil.auth.model;
 
 import java.io.Serializable;
 

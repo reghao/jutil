@@ -12,6 +12,7 @@
         <module>jdk</module>
         <module>tool</module>
         <module>web</module>
+        <module>auth</module>
     </modules>
 
     <properties>
