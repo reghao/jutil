@@ -12,7 +12,7 @@ public class BaseObject<T> implements Serializable {
 
     protected T id;
     // 逻辑删除
-    private Boolean deleted;
+    protected Boolean deleted;
     protected LocalDateTime createTime;
     protected LocalDateTime updateTime;
 
