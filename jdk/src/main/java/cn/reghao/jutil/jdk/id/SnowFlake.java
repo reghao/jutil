@@ -1,4 +1,4 @@
-package cn.reghao.jutil.tool.id;
+package cn.reghao.jutil.jdk.id;
 
 /**
  * @author reghao

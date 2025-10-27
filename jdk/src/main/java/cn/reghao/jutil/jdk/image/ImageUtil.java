@@ -1,6 +1,4 @@
-package cn.reghao.jutil.tool.media;
-
-import net.coobird.thumbnailator.Thumbnails;
+package cn.reghao.jutil.jdk.image;
 
 import javax.imageio.ImageIO;
 import javax.imageio.ImageReader;
@@ -8,7 +6,10 @@ import javax.imageio.stream.ImageInputStream;
 import javax.imageio.stream.ImageOutputStream;
 import java.awt.*;
 import java.awt.image.BufferedImage;
-import java.io.*;
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.File;
+import java.io.IOException;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Locale;
@@ -19,7 +20,7 @@ import java.util.Locale;
  * @author reghao
  * @date 2021-08-04 16:26:13
  */
-public class ImageOps {
+public class ImageUtil {
     public static Size info(File file) throws IOException {
         BufferedImage bi = ImageIO.read(file);
         return new Size(bi.getWidth(), bi.getHeight());
@@ -76,10 +77,21 @@ public class ImageOps {
         ImageIO.write(image, "webp", destFile);
     }
 
-    public static void convert2thumbnail(File srcFile, File destFile, int width, int height) throws IOException {
+    /**
+     * <dependency>
+     *             <groupId>net.coobird</groupId>
+     *             <artifactId>thumbnailator</artifactId>
+     *             <version>0.4.20</version>
+     *         </dependency>
+     *
+     * @param
+     * @return
+     * @date 2025-10-27 09:56:57
+     */
+    /*public static void convert2thumbnail(File srcFile, File destFile, int width, int height) throws IOException {
         BufferedImage image = Thumbnails.of(srcFile).size(width, height).asBufferedImage();
         ImageIO.write(image, "jpeg", destFile);
-    }
+    }*/
 
     public static BufferedImage merge(List<BufferedImage> bufferedImages, boolean isVertical) {
         int size = bufferedImages.size();

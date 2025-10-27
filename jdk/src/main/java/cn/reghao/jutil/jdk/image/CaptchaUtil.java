@@ -1,4 +1,4 @@
-package cn.reghao.jutil.jdk.file;
+package cn.reghao.jutil.jdk.image;
 
 import javax.imageio.ImageIO;
 import java.awt.*;
@@ -17,7 +17,7 @@ import java.util.Random;
  */
 public class CaptchaUtil {
     // 常用颜色
-    private static final int[][] COLOR = {{0, 135, 255}, {51, 153, 51}, {255, 102, 102}, {255, 153, 0}, {153, 102, 0}, 
+    private static final int[][] COLOR = {{0, 135, 255}, {51, 153, 51}, {255, 102, 102}, {255, 153, 0}, {153, 102, 0},
             {153, 102, 153}, {51, 153, 153}, {102, 102, 255}, {0, 102, 204}, {204, 51, 51}, {0, 153, 204}, {0, 51, 102}};
     private static final Random random = new SecureRandom();
 
