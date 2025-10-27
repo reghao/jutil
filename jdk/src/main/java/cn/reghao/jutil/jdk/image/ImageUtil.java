@@ -1,5 +1,7 @@
 package cn.reghao.jutil.jdk.image;
 
+import cn.reghao.jutil.jdk.image.model.ImageProps;
+
 import javax.imageio.ImageIO;
 import javax.imageio.ImageReader;
 import javax.imageio.stream.ImageInputStream;
@@ -21,11 +23,70 @@ import java.util.Locale;
  * @date 2021-08-04 16:26:13
  */
 public class ImageUtil {
+    /**
+     * 获取图片基本信息
+     *
+     * @param
+     * @return
+     * @date 2025-10-27 10:24:17
+     */
+    public static ImageProps getImageProps(File file) throws IOException {
+        long size = file.length();
+        BufferedImage bi = ImageIO.read(file);
+        int width = bi.getWidth();
+        int height = bi.getHeight();
+        String format = "";
+        try (ImageInputStream iis = ImageIO.createImageInputStream(file)) {
+            Iterator<ImageReader> iterator = ImageIO.getImageReaders(iis);
+            if ((iterator.hasNext())) {
+                ImageReader ir = iterator.next();
+                format =  ir.getFormatName().toLowerCase(Locale.ROOT);
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return new ImageProps(width, height, format, size);
+    }
+
+    /**
+     * 创建一张指定尺寸的图片
+     *
+     * @param
+     * @return
+     * @date 2025-10-27 10:32:03
+     */
+    public static ByteArrayOutputStream createImage(int width, int height, String text) throws IOException {
+        // 得到图片缓冲区
+        BufferedImage bi = new BufferedImage(width, height, BufferedImage.TYPE_INT_BGR);
+        // 获取绘制环境
+        Graphics2D g2d = (Graphics2D)bi.getGraphics();
+        // 设置背景色
+        g2d.setColor(Color.WHITE);
+        //填冲一个矩形
+        g2d.fillRect(0, 0, width, height);
+        //给图片加边框
+        g2d.setColor(Color.RED);
+        g2d.drawRect(0, 0, width-1, height-1);
+        String fontName = "WenQuanYi Micro Hei";
+        int fontSize = 18;
+        g2d.setFont(new Font(fontName, Font.PLAIN, fontSize));
+        //设置颜色
+        g2d.setColor(Color.RED);
+        //向图片中写字符串
+        g2d.drawString(text, 5, 29);
+
+        ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
+        ImageIO.write(bi, "jpg", byteArrayOutputStream);
+        return byteArrayOutputStream;
+    }
+
+    @Deprecated
     public static Size info(File file) throws IOException {
         BufferedImage bi = ImageIO.read(file);
         return new Size(bi.getWidth(), bi.getHeight());
     }
 
+    @Deprecated
     public static String getFormat(File file) {
         try (ImageInputStream iis = ImageIO.createImageInputStream(file);) {
             Iterator<ImageReader> iterator = ImageIO.getImageReaders(iis);
