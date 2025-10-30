@@ -2,8 +2,8 @@ package cn.reghao.jutil.web.validator;
 
 import cn.reghao.jutil.jdk.clazz.ClassUtil;
 
-import javax.validation.ConstraintValidator;
-import javax.validation.ConstraintValidatorContext;
+import jakarta.validation.ConstraintValidator;
+import jakarta.validation.ConstraintValidatorContext;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.List;
