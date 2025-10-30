@@ -1,4 +1,4 @@
-package cn.reghao.jutil.jdk.model.media;
+package cn.reghao.jutil.jdk.media.model;
 
 import java.time.LocalDateTime;
 
