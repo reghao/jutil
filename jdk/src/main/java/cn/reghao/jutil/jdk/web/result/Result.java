@@ -1,8 +1,8 @@
-package cn.reghao.jutil.jdk.web;
+package cn.reghao.jutil.jdk.web.result;
 
 import java.io.Serializable;
 
-import static cn.reghao.jutil.jdk.web.ResultStatus.*;
+import static cn.reghao.jutil.jdk.web.result.ResultStatus.*;
 
 
 /**

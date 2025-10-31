@@ -1,4 +1,4 @@
-package cn.reghao.jutil.jdk.web;
+package cn.reghao.jutil.jdk.web.result;
 
 import cn.reghao.jutil.jdk.serializer.JsonConverter;
 

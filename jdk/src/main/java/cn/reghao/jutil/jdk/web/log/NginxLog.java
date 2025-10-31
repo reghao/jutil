@@ -1,4 +1,4 @@
-package cn.reghao.jutil.web.log;
+package cn.reghao.jutil.jdk.web.log;
 
 import com.google.gson.annotations.SerializedName;
 

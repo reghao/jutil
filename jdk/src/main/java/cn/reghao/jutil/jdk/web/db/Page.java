@@ -1,4 +1,4 @@
-package cn.reghao.jutil.jdk.web;
+package cn.reghao.jutil.jdk.web.db;
 
 /**
  * @author reghao
