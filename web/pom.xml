@@ -37,12 +37,6 @@
             <version>jdk17-SNAPSHOT</version>
         </dependency>
 
-        <dependency>
-            <groupId>jakarta.validation</groupId>
-            <artifactId>jakarta.validation-api</artifactId>
-            <version>3.0.2</version>
-        </dependency>
-
         <!-- tomcat:10.1.17 实现的 servlet 版本 -->
         <dependency>
             <groupId>jakarta.servlet</groupId>

@@ -1,4 +1,4 @@
-package cn.reghao.jutil.jdk.result;
+package cn.reghao.jutil.jdk.web;
 
 /**
  * 结果状态

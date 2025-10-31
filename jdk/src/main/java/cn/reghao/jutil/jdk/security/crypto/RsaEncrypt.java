@@ -1,6 +1,6 @@
 package cn.reghao.jutil.jdk.security.crypto;
 
-import cn.reghao.jutil.jdk.text.TextFile;
+import cn.reghao.jutil.jdk.io.TextFile;
 
 import javax.crypto.Cipher;
 import java.io.File;

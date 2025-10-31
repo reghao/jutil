@@ -1,6 +1,6 @@
-package cn.reghao.jutil.jdk.image;
+package cn.reghao.jutil.jdk.media;
 
-import cn.reghao.jutil.jdk.image.model.ImageProps;
+import cn.reghao.jutil.jdk.media.model.ImageProps;
 
 import javax.imageio.ImageIO;
 import javax.imageio.ImageReader;

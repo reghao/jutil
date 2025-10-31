@@ -1,6 +1,6 @@
 package cn.reghao.jutil.jdk.serializer;
 
-import cn.reghao.jutil.jdk.text.TextFile;
+import cn.reghao.jutil.jdk.io.TextFile;
 import com.google.gson.*;
 import com.google.gson.stream.JsonReader;
 import com.google.gson.stream.JsonToken;

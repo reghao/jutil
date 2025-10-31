@@ -1,4 +1,4 @@
-package cn.reghao.jutil.jdk.image;
+package cn.reghao.jutil.jdk.media;
 
 import javax.imageio.ImageIO;
 import java.awt.*;

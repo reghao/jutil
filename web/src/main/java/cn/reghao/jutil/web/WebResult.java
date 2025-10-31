@@ -1,7 +1,8 @@
 package cn.reghao.jutil.web;
 
-import cn.reghao.jutil.jdk.result.Result;
-import cn.reghao.jutil.jdk.result.ResultStatus;
+import cn.reghao.jutil.jdk.http.HeaderNames;
+import cn.reghao.jutil.jdk.web.Result;
+import cn.reghao.jutil.jdk.web.ResultStatus;
 import cn.reghao.jutil.jdk.serializer.JsonConverter;
 
 /**

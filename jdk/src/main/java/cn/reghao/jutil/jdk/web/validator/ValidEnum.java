@@ -1,4 +1,4 @@
-package cn.reghao.jutil.web.validator;
+package cn.reghao.jutil.jdk.web.validator;
 
 import jakarta.validation.Constraint;
 import jakarta.validation.Payload;

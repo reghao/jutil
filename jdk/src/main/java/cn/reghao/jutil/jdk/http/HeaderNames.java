@@ -1,4 +1,4 @@
-package cn.reghao.jutil.web;
+package cn.reghao.jutil.jdk.http;
 
 /**
  * @author reghao

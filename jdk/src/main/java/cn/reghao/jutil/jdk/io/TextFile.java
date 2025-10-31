@@ -1,4 +1,4 @@
-package cn.reghao.jutil.jdk.text;
+package cn.reghao.jutil.jdk.io;
 
 import java.io.*;
 import java.util.*;

@@ -1,4 +1,4 @@
-package cn.reghao.jutil.jdk.image.model;
+package cn.reghao.jutil.jdk.media.model;
 
 /**
  * @author reghao

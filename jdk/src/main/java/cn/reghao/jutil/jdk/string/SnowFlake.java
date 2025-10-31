@@ -1,4 +1,4 @@
-package cn.reghao.jutil.jdk.id;
+package cn.reghao.jutil.jdk.string;
 
 /**
  * @author reghao
