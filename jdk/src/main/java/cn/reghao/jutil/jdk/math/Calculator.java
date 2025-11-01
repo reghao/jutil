@@ -28,4 +28,12 @@ public class Calculator {
         System.out.println(result2);*/
         return doubleValue;
     }
+
+    public static double plus(double d1, double d2) {
+        int scale = 2;
+        BigDecimal b1 = new BigDecimal(d1);
+        BigDecimal b2 = new BigDecimal(d2);
+        BigDecimal result = b1.add(b2).setScale(scale, RoundingMode.HALF_UP);
+        return result.doubleValue();
+    }
 }
