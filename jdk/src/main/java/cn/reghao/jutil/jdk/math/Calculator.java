@@ -16,8 +16,46 @@ public class Calculator {
         return result.multiply(new BigDecimal(100)).setScale(2, RoundingMode.DOWN).doubleValue();
     }
 
+    public static double plus(double d1, double d2) {
+        int scale = 2;
+        BigDecimal b1 = new BigDecimal(d1);
+        BigDecimal b2 = new BigDecimal(d2);
+        BigDecimal result = b1.add(b2).setScale(scale, RoundingMode.HALF_UP);
+        return result.doubleValue();
+    }
+
+    public static double plus(int scale, double d1, double d2) {
+        BigDecimal b1 = new BigDecimal(d1);
+        BigDecimal b2 = new BigDecimal(d2);
+        BigDecimal result = b1.add(b2).setScale(scale, RoundingMode.HALF_UP);
+        return result.doubleValue();
+    }
+
+    public static double subtract(double d1, double d2) {
+        int scale = 2;
+        BigDecimal b1 = new BigDecimal(d1);
+        BigDecimal b2 = new BigDecimal(d2);
+        BigDecimal result = b1.subtract(b2).setScale(scale, RoundingMode.HALF_UP);
+        return result.doubleValue();
+    }
+
+    public static double multiply(double d1, double d2) {
+        int scale = 2;
+        BigDecimal b1 = new BigDecimal(d1);
+        BigDecimal b2 = new BigDecimal(d2);
+        BigDecimal result = b1.multiply(b2).setScale(scale, RoundingMode.HALF_UP);
+        return result.doubleValue();
+    }
+
     public static double divide(long d1, long d2) {
         int scale = 2;
+        BigDecimal b1 = new BigDecimal(d1);
+        BigDecimal b2 = new BigDecimal(d2);
+        BigDecimal result = b1.divide(b2, scale, RoundingMode.HALF_UP);
+        return result.doubleValue();
+    }
+
+    public static double divide(int scale, double d1, double d2) {
         BigDecimal b1 = new BigDecimal(d1);
         BigDecimal b2 = new BigDecimal(d2);
         BigDecimal result = b1.divide(b2, scale, RoundingMode.HALF_UP);
@@ -27,13 +65,5 @@ public class Calculator {
         String result2 = df.format(d1/d2);
         System.out.println(result2);*/
         return doubleValue;
-    }
-
-    public static double plus(double d1, double d2) {
-        int scale = 2;
-        BigDecimal b1 = new BigDecimal(d1);
-        BigDecimal b2 = new BigDecimal(d2);
-        BigDecimal result = b1.add(b2).setScale(scale, RoundingMode.HALF_UP);
-        return result.doubleValue();
     }
 }
