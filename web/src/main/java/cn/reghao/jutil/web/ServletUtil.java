@@ -24,6 +24,21 @@ import java.util.Map;
  * @date 2021-06-02 13:16:58
  */
 public class ServletUtil {
+    public static HttpServletRequest getRequest() {
+        ServletRequestAttributes servletRequestAttributes = getServletRequest();
+        return servletRequestAttributes != null ? servletRequestAttributes.getRequest() : null;
+    }
+
+    public static HttpServletResponse getResponse() {
+        ServletRequestAttributes servletRequestAttributes = getServletRequest();
+        return servletRequestAttributes != null ? servletRequestAttributes.getResponse() : null;
+    }
+
+    private static ServletRequestAttributes getServletRequest() {
+        RequestAttributes requestAttributes = RequestContextHolder.getRequestAttributes();
+        return (requestAttributes instanceof ServletRequestAttributes) ? (ServletRequestAttributes) requestAttributes : null;
+    }
+
     public static Map<String, String> getCookies() {
         HttpServletRequest request = getRequest();
         Cookie[] cookies = request.getCookies();
@@ -89,6 +104,7 @@ public class ServletUtil {
         return auth.replace("Bearer ", "");
     }
 
+    @Deprecated
     public static String getBearerToken(ServletRequest servletRequest) {
         HttpServletRequest request = (HttpServletRequest) servletRequest;
         String auth = request.getHeader("Authorization");
@@ -98,10 +114,20 @@ public class ServletUtil {
         return auth.replace("Bearer ", "");
     }
 
-    @Deprecated
+    /*@Deprecated
     public static String getUserId() {
         String userId = getRequest().getHeader("x-user-id");
         return  userId != null ? userId : "-1";
+    }*/
+
+    public static String getRequestId0() {
+        HttpServletRequest request = getRequest();
+        return request != null ? (String) request.getAttribute(HeaderNames.XRequestId) : "NoneRequestId";
+    }
+
+    public static String getRequestId() {
+        HttpServletRequest request = getRequest();
+        return request != null ? request.getHeader(HeaderNames.XRequestId) : "NoneRequestId";
     }
 
     public static HttpSession getSession() {
@@ -150,33 +176,6 @@ public class ServletUtil {
     public static String getRequestParam(String param, String defaultValue){
         String parameter = getRequest().getParameter(param);
         return StringUtils.isEmpty(parameter) ? defaultValue : parameter;
-    }
-
-    public static HttpServletRequest getRequest(){
-        ServletRequestAttributes servletRequestAttributes = getServletRequest();
-        if (servletRequestAttributes != null) {
-            return servletRequestAttributes.getRequest();
-        }
-
-        return null;
-    }
-
-    public static HttpServletResponse getResponse(){
-        ServletRequestAttributes servletRequestAttributes = getServletRequest();
-        if (servletRequestAttributes != null) {
-            return servletRequestAttributes.getResponse();
-        }
-
-        return null;
-    }
-
-    private static ServletRequestAttributes getServletRequest(){
-        RequestAttributes requestAttributes = RequestContextHolder.getRequestAttributes();
-        if (requestAttributes instanceof ServletRequestAttributes) {
-            return (ServletRequestAttributes) requestAttributes;
-        }
-
-        return null;
     }
 
     public static GatewayLog getGatewayLog() {
