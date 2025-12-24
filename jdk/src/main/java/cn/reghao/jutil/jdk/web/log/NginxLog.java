@@ -19,7 +19,7 @@ public class NginxLog implements Serializable {
     @SerializedName("request_method") private String requestMethod;
     @SerializedName("body_bytes_sent") private Integer bodyBytesSent;
     @SerializedName("request_time") private Double requestTime;
-    @SerializedName("upstream_response_time") private String upstreamResponseTime;
+    @SerializedName("upstream_response_time") private Double upstreamResponseTime;
     @SerializedName("upstream_addr") private String upstreamAddr;
     private String host;
     private String url;
@@ -63,7 +63,7 @@ public class NginxLog implements Serializable {
         return requestTime;
     }
 
-    public String getUpstreamResponseTime() {
+    public Double getUpstreamResponseTime() {
         return upstreamResponseTime;
     }
 
