@@ -11,6 +11,7 @@ import java.io.Serializable;
 public class NginxLog implements Serializable {
     private static final long serialVersionUID = 1L;
 
+    private String id;
     @SerializedName("time_iso8601") private String timeIso8601;
     @SerializedName("remote_addr") private String remoteAddr;
     private String request;
@@ -25,6 +26,14 @@ public class NginxLog implements Serializable {
     @SerializedName("http_x_forwarded_for") private String httpXForwardedFor;
     @SerializedName("http_referer") private String httpReferer;
     @SerializedName("http_user_agent") private String httpUserAgent;
+
+    public void setId(String id) {
+        this.id = id;
+    }
+
+    public String getId() {
+        return id;
+    }
 
     public String getTimeIso8601() {
         return timeIso8601;
