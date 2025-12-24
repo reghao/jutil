@@ -16,11 +16,11 @@ public class ShellExecutor {
      *
      * Java 运行时不能执行 cd 命令
      *
-     * @param commands shell 命令(脚本) 参数
+     * @param command 单个 shell 命令(脚本) 及其参数
      * @return
      * @date 2021-10-28 下午4:26
      */
-    public ShellResult exec(String... commands) {
+    public ShellResult exec(String... command) {
         String output = System.getProperty("java.io.tmpdir") + "/" + UUID.randomUUID() + ".out";
         File ofile = new File(output);
 
@@ -28,7 +28,7 @@ public class ShellExecutor {
         try {
             boolean ret = ofile.createNewFile();
             // 单个命令和其参数
-            pb.command(commands)
+            pb.command(command)
                     // 将标准错误合并到标准输出
                     .redirectErrorStream(true)
                     // 将所有输出重定向到文件
@@ -45,12 +45,14 @@ public class ShellExecutor {
     }
 
     /**
+     * 在指定目录中执行 shell 命令, 解决 Java 运行时不能执行 cd 命令的问题
+     *
      * @param dir 工作目录
-     * @param commands shell 命令(脚本) 参数
+     * @param command command 单个 shell 命令(脚本) 及其参数
      * @return
      * @date 2021-10-28 下午4:26
      */
-    public ShellResult exec(String dir, String... commands) {
+    public ShellResult execWithDir(String dir, String... command) {
         String output = System.getProperty("java.io.tmpdir") + "/" + UUID.randomUUID() + ".out";
         File ofile = new File(output);
 
@@ -58,7 +60,7 @@ public class ShellExecutor {
         try {
             boolean ret = ofile.createNewFile();
             // 命令和其参数
-            pb.command(commands)
+            pb.command(command)
                     // 将标准错误合并到标准输出
                     .redirectErrorStream(true)
                     // 将所有输出重定向到文件
