@@ -20,7 +20,6 @@ public class NginxLog implements Serializable {
     @SerializedName("body_bytes_sent") private Integer bodyBytesSent;
     @SerializedName("request_time") private Double requestTime;
     @SerializedName("upstream_response_time") private String upstreamResponseTime;
-    private String upstreamResponseTimeDouble;
     @SerializedName("upstream_addr") private String upstreamAddr;
     private String host;
     private String url;
@@ -70,14 +69,6 @@ public class NginxLog implements Serializable {
 
     public String getUpstreamResponseTime() {
         return upstreamResponseTime;
-    }
-
-    public void setUpstreamResponseTimeDouble(String upstreamResponseTimeDouble) {
-        this.upstreamResponseTimeDouble = upstreamResponseTimeDouble;
-    }
-
-    public String getUpstreamResponseTimeDouble() {
-        return upstreamResponseTimeDouble;
     }
 
     public String getUpstreamAddr() {
