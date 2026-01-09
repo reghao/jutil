@@ -13,7 +13,6 @@ public class NginxLog implements Serializable {
 
     private String id;
     @SerializedName("time_iso8601") private String timeIso8601;
-    private Long requestTimestamp;
     @SerializedName("remote_addr") private String remoteAddr;
     private String request;
     private Integer status;
@@ -37,16 +36,12 @@ public class NginxLog implements Serializable {
         return id;
     }
 
+    public void setTimeIso8601(String timeIso8601) {
+        this.timeIso8601 = timeIso8601;
+    }
+
     public String getTimeIso8601() {
         return timeIso8601;
-    }
-
-    public void setRequestTimestamp(Long requestTimestamp) {
-        this.requestTimestamp = requestTimestamp;
-    }
-
-    public Long getRequestTimestamp() {
-        return requestTimestamp;
     }
 
     public String getRemoteAddr() {
