@@ -23,6 +23,7 @@ public class NginxLog implements Serializable {
     @SerializedName("upstream_addr") private String upstreamAddr;
     private String host;
     private String url;
+    private String methodUrl;
     @SerializedName("http_x_forwarded_for") private String httpXForwardedFor;
     @SerializedName("http_referer") private String httpReferer;
     @SerializedName("http_user_agent") private String httpUserAgent;
@@ -79,12 +80,16 @@ public class NginxLog implements Serializable {
         return host;
     }
 
-    public void setUrl(String url) {
-        this.url = url;
-    }
-
     public String getUrl() {
         return url;
+    }
+
+    public void setMethodUrl(String methodUrl) {
+        this.methodUrl = methodUrl;
+    }
+
+    public String getMethodUrl() {
+        return methodUrl;
     }
 
     public String getHttpXForwardedFor() {
