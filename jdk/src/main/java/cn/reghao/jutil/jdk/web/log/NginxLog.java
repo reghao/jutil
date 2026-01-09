@@ -72,6 +72,10 @@ public class NginxLog implements Serializable {
         return upstreamResponseTime;
     }
 
+    public void setUpstreamResponseTimeDouble(String upstreamResponseTimeDouble) {
+        this.upstreamResponseTimeDouble = upstreamResponseTimeDouble;
+    }
+
     public String getUpstreamResponseTimeDouble() {
         return upstreamResponseTimeDouble;
     }
