@@ -7,7 +7,7 @@
     <groupId>cn.reghao.jutil</groupId>
     <artifactId>jutil</artifactId>
     <packaging>pom</packaging>
-    <version>jdk17-SNAPSHOT</version>
+    <version>jdk21-SNAPSHOT</version>
     <modules>
         <module>jdk</module>
         <module>tool</module>
@@ -15,8 +15,8 @@
     </modules>
 
     <properties>
-        <maven.compiler.source>17</maven.compiler.source>
-        <maven.compiler.target>17</maven.compiler.target>
+        <maven.compiler.source>21</maven.compiler.source>
+        <maven.compiler.target>21</maven.compiler.target>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
     </properties>

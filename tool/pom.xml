@@ -5,23 +5,23 @@
     <parent>
         <artifactId>jutil</artifactId>
         <groupId>cn.reghao.jutil</groupId>
-        <version>jdk17-SNAPSHOT</version>
+        <version>jdk21-SNAPSHOT</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
     <artifactId>tool</artifactId>
-    <version>jdk17-SNAPSHOT</version>
+    <version>jdk21-SNAPSHOT</version>
 
     <properties>
-        <maven.compiler.source>17</maven.compiler.source>
-        <maven.compiler.target>17</maven.compiler.target>
+        <maven.compiler.source>21</maven.compiler.source>
+        <maven.compiler.target>21</maven.compiler.target>
     </properties>
 
     <dependencies>
         <dependency>
             <groupId>cn.reghao.jutil</groupId>
             <artifactId>jdk</artifactId>
-            <version>jdk17-SNAPSHOT</version>
+            <version>jdk21-SNAPSHOT</version>
         </dependency>
 
         <dependency>
