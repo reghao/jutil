@@ -21,10 +21,10 @@
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
     </properties>
 
-    <distributionManagement>
+    <repositories>
         <repository>
-            <id>maven-local-hosted</id>
-            <url>http://nexus.reghao.cn/repository/maven-local-hosted/</url>
+            <id>jitpack.io</id>
+            <url>https://jitpack.io</url>
         </repository>
-    </distributionManagement>
+    </repositories>
 </project>
