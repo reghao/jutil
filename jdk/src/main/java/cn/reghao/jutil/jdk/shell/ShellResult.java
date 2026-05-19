@@ -8,9 +8,25 @@ public class ShellResult {
     private int exitCode;
     // 包含 stdout 和/或 stderr
     private String result;
+    private String stdout;
+    private String stderr;
 
     public ShellResult(int exitCode) {
         this.exitCode = exitCode;
+    }
+
+    public ShellResult(int exitCode, String stdout, String stderr) {
+        this.exitCode = exitCode;
+        this.stdout = stdout;
+        this.stderr = stderr;
+    }
+
+    public String getStdout() {
+        return stdout;
+    }
+
+    public String getStderr() {
+        return stderr;
     }
 
     public void setExitCode(int exitCode) {

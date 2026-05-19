@@ -6,11 +6,21 @@ import cn.reghao.jutil.jdk.media.model.AudioProps;
 import cn.reghao.jutil.jdk.media.model.MediaProps;
 import cn.reghao.jutil.jdk.media.model.VideoProps;
 import cn.reghao.jutil.jdk.shell.Shell;
-import com.google.gson.JsonArray;
-import com.google.gson.JsonElement;
-import com.google.gson.JsonObject;
+import cn.reghao.jutil.jdk.shell.ShellExecutor;
+import cn.reghao.jutil.jdk.shell.ShellResult;
+import com.google.gson.*;
 
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.InputStreamReader;
+import java.time.Duration;
 import java.time.LocalDateTime;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 /**
  * @author reghao
@@ -19,12 +29,38 @@ import java.time.LocalDateTime;
 public class FFmpegWrapper {
     private final static String ffprobe = "/usr/bin/ffprobe";
     private final static String ffmpeg = "/usr/bin/ffmpeg";
+    private static final Gson gson = new Gson();
 
     public static MediaProps getMediaProps(String srcPath) {
-        String cmd = String.format("%s -v quiet -print_format json -show_format -show_streams -i '%s'", ffprobe, srcPath);
-        String result = Shell.execWithResult(cmd);
-        if (result != null) {
-            JsonObject jsonObject = JsonConverter.jsonToJsonElement(result).getAsJsonObject();
+        // 构建全量探测命令
+        List<String> cmd = Arrays.asList(
+                ffprobe,
+                "-v", "quiet",           // 不打印日志头
+                "-print_format", "json", // 输出 JSON
+                "-show_format",          // 容器格式信息 (bitrate, size, duration, tags)
+                "-show_streams",         // 所有流 (video, audio, subtitle, data)
+                "-show_chapters",        // 章节信息
+                "-show_programs",        // 节目信息 (常用于 TS 流)
+                "-show_error",           // 如果解析出错，输出错误 JSON
+                srcPath
+        );
+
+        try {
+            Process process = new ProcessBuilder(cmd).start();
+            StringBuilder jsonOutput = new StringBuilder();
+            try (BufferedReader reader = new BufferedReader(new InputStreamReader(process.getInputStream()))) {
+                String line;
+                while ((line = reader.readLine()) != null) {
+                    jsonOutput.append(line);
+                }
+            }
+
+            int exitCode = process.waitFor();
+            if (exitCode != 0) {
+                throw new RuntimeException("FFprobe 解析失败，退出码: " + exitCode);
+            }
+
+            JsonObject jsonObject = JsonParser.parseString(jsonOutput.toString()).getAsJsonObject();
             JsonArray streams = jsonObject.get("streams").getAsJsonArray();
             AudioProps audioProps = null;
             VideoProps videoProps = null;
@@ -97,9 +133,7 @@ public class FFmpegWrapper {
                 }
             }
 
-
             MediaProps mediaProps = new MediaProps(audioProps, videoProps);
-
             if (format.get("format_name") != null) {
                 String formatName = format.get("format_name").getAsString();
                 mediaProps.setFormatName(formatName);
@@ -127,10 +161,32 @@ public class FFmpegWrapper {
                 }
             }
             return mediaProps;
+        } catch (Exception e) {
+            throw new RuntimeException(e.getMessage());
         }
-        return null;
     }
 
+    public static void checkVideo(File inputFile) {
+        List<String> command = Arrays.asList(
+                ffmpeg, "-v", "error",
+                "-i", inputFile.getAbsolutePath(),
+                "-f", "null", "-"
+        );
+
+        try {
+            ShellResult shellResult = ShellExecutor.executeWithResult(command);
+            if (shellResult.getExitCode() != 0) {
+                String errorMsg = String.format("exec failed");
+                throw new RuntimeException(errorMsg);
+            } else if (!shellResult.getStdout().isEmpty() || !shellResult.getStderr().isEmpty()) {
+                String errorMsg = String.format("video %s invalid", inputFile.getAbsolutePath());
+                throw new RuntimeException(errorMsg);
+            }
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+    }
+    
     @Deprecated
     public static int formatCovert(String srcPath, String destPath, String format) {
         String cmd = String.format("%s -loglevel error -y -i \"%s\" -c:a aac -c:v libx264 -f %s \"%s\"",
