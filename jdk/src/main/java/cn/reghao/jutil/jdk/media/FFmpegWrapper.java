@@ -8,6 +8,7 @@ import cn.reghao.jutil.jdk.media.model.VideoProps;
 import cn.reghao.jutil.jdk.shell.Shell;
 import cn.reghao.jutil.jdk.shell.ShellExecutor;
 import cn.reghao.jutil.jdk.shell.ShellResult;
+import cn.reghao.jutil.jdk.string.StringUtil;
 import com.google.gson.*;
 
 import java.io.BufferedReader;
@@ -15,10 +16,7 @@ import java.io.File;
 import java.io.InputStreamReader;
 import java.time.Duration;
 import java.time.LocalDateTime;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -176,12 +174,162 @@ public class FFmpegWrapper {
         try {
             ShellResult shellResult = ShellExecutor.executeWithResult(command);
             if (shellResult.getExitCode() != 0) {
-                String errorMsg = String.format("exec failed");
-                throw new RuntimeException(errorMsg);
+                throw new RuntimeException("exec failed");
             } else if (!shellResult.getStdout().isEmpty() || !shellResult.getStderr().isEmpty()) {
                 String errorMsg = String.format("video %s invalid", inputFile.getAbsolutePath());
                 throw new RuntimeException(errorMsg);
             }
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    public static String getVideoCover(File videoFile) {
+        String videoPath = videoFile.getAbsolutePath();
+        String coverPath = String.format("%s/%s.jpg", videoFile.getParent(), UUID.randomUUID().toString().replace("-", ""));
+        VideoProps videoProps = getMediaProps(videoFile.getAbsolutePath()).getVideoProps();
+        double duration = videoProps.getDuration();
+        String arg = "00:00:02";
+        if (duration > 10.0) {
+            arg = StringUtil.formatSeconds(duration/2.0);
+        }
+
+        List<String> command = new ArrayList<>();
+        command.add("ffmpeg");
+        command.add("-y");
+        command.add("-hide_banner");
+        command.add("-ss");
+        //command.add("00:00:02"); // 毫秒级快进，避开黑屏
+        command.add(arg);
+        command.add("-i");
+        command.add(videoPath);
+        command.add("-vf");
+        command.add("select='eq(pict_type,I)'"); // 锁死关键帧并缩放
+        command.add("-vframes");
+        command.add("1");
+        command.add("-q:v");
+        command.add("5"); // 兼顾体积与画质
+        command.add("-fps_mode");
+        command.add("vfr"); // 【新版语法】防止凑帧，极速退出
+        command.add("-update");
+        command.add("1"); // 强制复写单张图
+        command.add(coverPath);
+
+        try {
+            ShellResult shellResult = ShellExecutor.executeWithResult(command);
+            if (shellResult.getExitCode() == 0) {
+                return coverPath;
+            }
+
+            String errorMsg = shellResult.getStdout() +
+                    System.lineSeparator() +
+                    shellResult.getStderr();
+            throw new RuntimeException(errorMsg);
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    public static String getSpriteCover(File videoFile) {
+        String videoPath = videoFile.getAbsolutePath();
+        String coverPath = String.format("%s/%s.jpg", videoFile.getParent(), UUID.randomUUID().toString().replace("-", ""));
+        VideoProps videoProps = getMediaProps(videoFile.getAbsolutePath()).getVideoProps();
+        double duration = videoProps.getDuration();
+
+        double codedWidth = videoProps.getCodedWidth();
+        double codedHeight = videoProps.getCodedHeight();
+        double width, height;
+        int rows, cols;
+        if (duration < 60) {
+            // 1min
+            width = codedWidth;
+            height = codedHeight;
+            rows = 1;
+            cols = 1;
+        } else if (duration < 180) {
+            // 1min ~ 3min
+            width = codedWidth/2;
+            height = codedHeight/2;
+            rows = 2;
+            cols = 2;
+        } else if (duration < 300) {
+            // 3min ~ 5min
+            width = codedWidth/3;
+            height = codedHeight/3;
+            rows = 3;
+            cols = 3;
+        } else if (duration < 600) {
+            // 5min ~ 10min
+            width = codedWidth/4;
+            height = codedHeight/4;
+            rows = 4;
+            cols = 4;
+        } else if (duration < 1200) {
+            // 10min ~ 20min
+            width = codedWidth/5;
+            height = codedHeight/5;
+            rows = 5;
+            cols = 5;
+        } else {
+            // > 20min
+            width = codedWidth/6;
+            height = codedHeight/6;
+            rows = 6;
+            cols = 6;
+        }
+        int totalGrid = rows * cols;
+
+        List<String> command = new ArrayList<>();
+        command.add("ffmpeg");
+        command.add("-y");
+        command.add("-hide_banner");
+        if (totalGrid == 1) {
+            String arg = "00:00:02";
+            if (duration > 5.0) {
+                arg = StringUtil.formatSeconds(duration/2.0);
+            }
+
+            command.add("-ss");
+            command.add(arg);
+            command.add("-i");
+            command.add(videoPath);
+            command.add("-vf");
+            command.add("select='eq(pict_type,I)'");
+        } else {
+            command.add("-skip_frame");
+            command.add("nokey");
+            command.add("-i");
+            command.add(videoPath);
+            command.add("-an");
+            command.add("-sn");
+
+            String fps = String.format("%.4f", totalGrid / duration);
+            String filter = String.format("fps=%s,scale=%s:%s,tile=%dx%d:nb_frames=0:padding=4:color=white",
+                    fps, width, height, cols, rows);
+            command.add("-vf");
+            command.add(filter);
+        }
+        // 通用尾部参数
+        command.add("-vframes");
+        command.add("1");
+        command.add("-q:v");
+        command.add("5"); // 兼顾体积与画质
+        command.add("-fps_mode");
+        command.add("vfr"); // 【新版语法】防止凑帧，极速退出
+        command.add("-update");
+        command.add("1"); // 强制复写单张图
+        command.add(coverPath);
+
+        try {
+            ShellResult shellResult = ShellExecutor.executeWithResult(command);
+            if (shellResult.getExitCode() == 0) {
+                return coverPath;
+            }
+
+            String errorMsg = shellResult.getStdout() +
+                    System.lineSeparator() +
+                    shellResult.getStderr();
+            throw new RuntimeException(errorMsg);
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
