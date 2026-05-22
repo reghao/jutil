@@ -8,6 +8,9 @@ import cn.reghao.jutil.jdk.media.model.VideoProps;
 import cn.reghao.jutil.jdk.shell.Shell;
 import cn.reghao.jutil.jdk.shell.ShellExecutor;
 import cn.reghao.jutil.jdk.shell.ShellResult;
+import cn.reghao.jutil.jdk.shell.handler.ConvertVideoOutputHandler;
+import cn.reghao.jutil.jdk.shell.handler.EmptyHandler;
+import cn.reghao.jutil.jdk.shell.handler.OutputHandler;
 import cn.reghao.jutil.jdk.string.StringUtil;
 import com.google.gson.*;
 
@@ -231,6 +234,40 @@ public class FFmpegWrapper {
     }
 
     public static String getSpriteCover(File videoFile) {
+        List<String> command0 = new ArrayList<>();
+        command0.add(ffprobe);
+        command0.add("-y");
+        command0.add("-hide_banner");
+        command0.add("-v");
+        command0.add("error");
+        command0.add("-select_streams");
+        command0.add("v:0");
+        command0.add("-count_frames");
+        command0.add("-show_entries");
+        command0.add("stream=nb_read_frames");
+        command0.add("-skip_frame");
+        command0.add("nokey");
+        command0.add("-of");
+        command0.add("default=nokey=1:noprint_wrappers=1");
+        command0.add(videoFile.getAbsolutePath());
+        int keyFrameCount = 0;
+        try {
+            ShellResult shellResult = ShellExecutor.executeWithResult(command0);
+            if (shellResult.getExitCode() != 0) {
+                String errorMsg = shellResult.getStdout() +
+                        System.lineSeparator() +
+                        shellResult.getStderr();
+                throw new RuntimeException(errorMsg);
+            }
+
+            String totalStr = shellResult.getStdout()
+                    .replaceAll("\\s+", "")
+                    .replace("\"", "");
+            keyFrameCount = Integer.parseInt(totalStr);
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+
         String videoPath = videoFile.getAbsolutePath();
         String coverPath = String.format("%s/%s.jpg", videoFile.getParent(), UUID.randomUUID().toString().replace("-", ""));
         VideoProps videoProps = getMediaProps(videoFile.getAbsolutePath()).getVideoProps();
@@ -303,9 +340,12 @@ public class FFmpegWrapper {
             command.add("-an");
             command.add("-sn");
 
-            String fps = String.format("%.4f", totalGrid / duration);
+            int interval = keyFrameCount / totalGrid;
+            /*String fps = String.format("%.4f", keyFrameCount / totalGrid);
             String filter = String.format("fps=%s,scale=%s:%s,tile=%dx%d:nb_frames=0:padding=4:color=white",
-                    fps, width, height, cols, rows);
+                    fps, width, height, cols, rows);*/
+            String filter = String.format("select='not(mod(n,%s))',scale=%s:%s,tile=%dx%d:padding=4:color=white",
+                    interval, width, height, cols, rows);
             command.add("-vf");
             command.add(filter);
         }
@@ -334,7 +374,78 @@ public class FFmpegWrapper {
             throw new RuntimeException(e);
         }
     }
-    
+
+    public static void convertWithWatermark(File videoFile, double duration, File outputFile) {
+        // 文件名格式 rtmp_1778685159.flv
+        String filename = videoFile.getName();
+        String inputPath = videoFile.getAbsolutePath();
+        String outputPath = outputFile.getAbsolutePath();
+        String timestampStr = filename.replace(".flv", "").replace("rtmp_", "");
+
+        // 1. 提取出你需要动态传入的参数
+        String fontPath = "/usr/share/fonts/truetype/wqy/wqy-microhei.ttc";
+        long timestamp = Long.parseLong(timestampStr);
+        String watermarkText = "在线录制";
+
+        // 2. 编写 String.format 的模板字符串
+        // 注意：其中的 %%Y、%%m、%%d、%%H、%%M、%%S 是为了防止 Java 报错而做的转义
+        String filterTemplate = "format=yuv420p," +
+                "drawtext=fontfile='%s':text='%%{pts\\:localtime\\:%d\\:%%Y-%%m-%%d %%H\\\\\\:%%M\\\\\\:%%S}':x=w-tw-30:y=30:fontsize=28:fontcolor=white:alpha=0.9:borderw=1:bordercolor=black@0.4:shadowy=1:shadowcolor=black@0.3," +
+                "drawtext=fontfile='%s':text='%s':x=w-tw-30:y=h-th-30:fontsize=22:fontcolor=white:alpha=0.8:borderw=1:bordercolor=black@0.4:shadowy=1:shadowcolor=black@0.3";
+        // 3. 格式化并生成最终的滤镜字符串
+        String finalFilterString = String.format(filterTemplate, fontPath, timestamp, fontPath, watermarkText);
+
+        // 1. 构建 FFmpeg 参数列表
+        List<String> command = new ArrayList<>();
+        command.add("ffmpeg");
+        command.add("-y");
+        command.add("-hwaccel");
+        command.add("cuda");
+        command.add("-i");
+        command.add(inputPath);
+
+        // 核心避坑点：整个 -vf 的内容必须是一个紧凑的字符串，去掉终端里的换行符和多余空格
+        command.add("-vf");
+        command.add(finalFilterString);
+
+        // 编码与画质控制参数
+        command.add("-c:v");
+        command.add("h264_nvenc");
+        command.add("-preset");
+        command.add("p7");
+        command.add("-tune");
+        command.add("hq");
+        command.add("-rc");
+        command.add("constqp");
+        command.add("-cq");
+        command.add("11");
+        command.add("-spatial_aq");
+        command.add("1");
+        command.add("-temporal_aq");
+        command.add("1");
+
+        // 音频与 Web 优化参数
+        command.add("-c:a");
+        command.add("aac");
+        command.add("-b:a");
+        command.add("128k");
+        command.add("-movflags");
+        command.add("+faststart");
+        // 输出文件
+        command.add(outputPath);
+
+        try {
+            OutputHandler stdoutHandler = new EmptyHandler();
+            OutputHandler stderrHandler = new ConvertVideoOutputHandler(duration);
+            int exitCode = ShellExecutor.executeFFmpeg(command, stdoutHandler, stderrHandler);
+            if (exitCode != 0) {
+                throw new RuntimeException("convert video failed...");
+            }
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+    }
+
     @Deprecated
     public static int formatCovert(String srcPath, String destPath, String format) {
         String cmd = String.format("%s -loglevel error -y -i \"%s\" -c:a aac -c:v libx264 -f %s \"%s\"",

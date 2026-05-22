@@ -26,6 +26,8 @@ public class ConvertVideoOutputHandler implements OutputHandler {
             System.out.printf("FFmpeg ERROR: %s\n", percentStr);
             // 限制频率，防止每帧都发消息给前端（比如每增加 1% 发一次）
             //updateProgressToFrontend(videoId, percent);
+        } else {
+            System.out.println(line);
         }
     }
 
