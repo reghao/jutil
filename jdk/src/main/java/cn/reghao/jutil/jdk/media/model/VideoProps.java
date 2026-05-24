@@ -15,14 +15,17 @@ public class VideoProps implements Serializable {
     private double duration;
     private double codedWidth;
     private double codedHeight;
+    private String pixFmt;
 
-    public VideoProps(String codecName, String codecTagString, long bitRate, double duration, double codedWidth, double codedHeight) {
+    public VideoProps(String codecName, String codecTagString, long bitRate, double duration,
+                      double codedWidth, double codedHeight, String pixFmt) {
         this.codecName = codecName;
         this.codecTagString = codecTagString;
         this.bitRate = bitRate;
         this.duration = duration;
         this.codedWidth = codedWidth;
         this.codedHeight = codedHeight;
+        this.pixFmt = pixFmt;
     }
 
     public String getCodecName() {
@@ -55,5 +58,13 @@ public class VideoProps implements Serializable {
 
     public Double getCodedHeight() {
         return codedHeight;
+    }
+
+    public void setPixFmt(String pixFmt) {
+        this.pixFmt = pixFmt;
+    }
+
+    public String getPixFmt() {
+        return pixFmt;
     }
 }

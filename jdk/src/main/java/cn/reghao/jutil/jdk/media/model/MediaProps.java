@@ -14,6 +14,7 @@ public class MediaProps implements Serializable {
     private VideoProps videoProps;
     private String formatName;
     private String formatLongName;
+    private String majorBrand;
     private Double startTime;
     private LocalDateTime createTime;
 
@@ -44,6 +45,14 @@ public class MediaProps implements Serializable {
 
     public String getFormatLongName() {
         return formatLongName;
+    }
+
+    public void setMajorBrand(String majorBrand) {
+        this.majorBrand = majorBrand;
+    }
+
+    public String getMajorBrand() {
+        return majorBrand;
     }
 
     public void setStartTime(Double startTime) {

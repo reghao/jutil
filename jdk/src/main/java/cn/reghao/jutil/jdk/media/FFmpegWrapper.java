@@ -1,6 +1,7 @@
 package cn.reghao.jutil.jdk.media;
 
 import cn.reghao.jutil.jdk.converter.DateTimeConverter;
+import cn.reghao.jutil.jdk.media.model.WebVideoCheck;
 import cn.reghao.jutil.jdk.serializer.JsonConverter;
 import cn.reghao.jutil.jdk.media.model.AudioProps;
 import cn.reghao.jutil.jdk.media.model.MediaProps;
@@ -95,6 +96,7 @@ public class FFmpegWrapper {
 
                     String codecName = jsonObject1.get("codec_name").getAsString();
                     String codecTagString = jsonObject1.get("codec_tag_string").getAsString();
+                    String pixFmt = jsonObject1.get("pix_fmt").getAsString();
 
                     long bitRate;
                     JsonElement biteRateElement = jsonObject1.get("bit_rate");
@@ -114,7 +116,7 @@ public class FFmpegWrapper {
 
                     double codedWidth = jsonObject1.get("coded_width").getAsDouble();
                     double codedHeight = jsonObject1.get("coded_height").getAsDouble();
-                    videoProps = new VideoProps(codecName, codecTagString, bitRate, duration, codedWidth, codedHeight);
+                    videoProps = new VideoProps(codecName, codecTagString, bitRate, duration, codedWidth, codedHeight, pixFmt);
                 }
             }
 
@@ -143,6 +145,11 @@ public class FFmpegWrapper {
             if (format.get("format_long_name") != null) {
                 String formatLongName = format.get("format_long_name").getAsString();
                 mediaProps.setFormatLongName(formatLongName);
+            }
+
+            if (format.get("tags") != null && format.get("tags").getAsJsonObject().get("major_brand") != null) {
+                String majorBrand = format.get("tags").getAsJsonObject().get("major_brand").getAsString();
+                mediaProps.setMajorBrand(majorBrand);
             }
 
             if (format.get("start_time") != null) {
@@ -185,6 +192,88 @@ public class FFmpegWrapper {
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
+    }
+
+    public static WebVideoCheck checkWebVideo(MediaProps mediaProps, File file) {
+        WebVideoCheck webVideoCheck = new WebVideoCheck();
+        VideoProps videoProps = mediaProps.getVideoProps();
+        if (videoProps != null) {
+            String vcodec = videoProps.getCodecName();
+            // 检查视频编码
+            if ("h264".equals(vcodec) || "vp9".equals(vcodec)) {
+                webVideoCheck.setVcodec(true);
+            }
+
+            // 检查像素格式
+            if ("yuv420p".equals(videoProps.getPixFmt())) {
+                webVideoCheck.setPixFormat(true);
+            }
+        }
+
+        AudioProps audioProps = mediaProps.getAudioProps();
+        if (audioProps != null) {
+            String acodec = audioProps.getCodecName();
+            // 检查音频编码
+            if ("aac".equals(acodec) || "opus".equals(acodec) || "mp3".equals(acodec)) {
+                webVideoCheck.setAcodec(true);
+            }
+        }
+
+        String majorBrand = mediaProps.getMajorBrand();
+        String formatName = mediaProps.getFormatName();
+        // 检查封装格式
+        if (majorBrand != null && (majorBrand.equals("isom") || majorBrand.equals("mp42") || majorBrand.equals("mp41"))) {
+            webVideoCheck.setVideoFormat(true);
+        } else if (formatName != null && (formatName.contains(".mp4") || formatName.contains(".webm"))) {
+            //System.out.println("🟢 [封装格式]: " + ext + " (符合标准)");
+            webVideoCheck.setVideoFormat(true);
+        }
+
+        String videoPath = file.getAbsolutePath();
+        // 3. 获取 moov/mdat 位置信息
+        List<String> structureInfo = checkFastStart(videoPath);
+        // 检查是否支持边下边播 (FastStart)
+        if (structureInfo.size() >= 2) {
+            String firstLine = structureInfo.get(0);
+            if (firstLine.contains("type:'moov'")) {
+                webVideoCheck.setFastStart(true);
+            }
+        }
+        return webVideoCheck;
+    }
+
+    private static List<String> checkFastStart(String videoPath) {
+        List<String> output = new ArrayList<>();
+        // 1. 命令中不再拼接 videoPath，而是使用 Bash 变量 "$VIDEO_PATH"
+        // 这样 Bash 会强制将其视为一个整体，绝对不会发生字符串切分
+        String cmd = "ffprobe -v trace \"$VIDEO_PATH\" 2>&1 | grep -E \"type:'moov'|type:'mdat'\" | head -n 2";
+
+        List<String> commands = new ArrayList<>();
+        commands.add("/bin/bash");
+        commands.add("-c");
+        commands.add(cmd);
+
+        try {
+            ProcessBuilder pb = new ProcessBuilder(commands);
+
+            // 2. 核心注入：把复杂的文件名丢进环境变量里
+            Map<String, String> env = pb.environment();
+            env.put("VIDEO_PATH", videoPath);
+
+            pb.redirectErrorStream(true);
+            Process process = pb.start();
+
+            try (BufferedReader reader = new BufferedReader(new InputStreamReader(process.getInputStream()))) {
+                String line;
+                while ((line = reader.readLine()) != null) {
+                    output.add(line);
+                }
+            }
+            process.waitFor();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return output;
     }
 
     public static String getVideoCover(File videoFile) {
@@ -526,6 +615,54 @@ public class FFmpegWrapper {
             } catch (Exception e) {
                 throw new RuntimeException(e);
             }
+        }
+    }
+
+    public static void fixVideoFastStart(File inputFile, File outputFile) {
+        List<String> command = Arrays.asList(
+                ffmpeg, "-y", "-hide_banner",
+                "-i", inputFile.getAbsolutePath(),
+                "-c", "copy",
+                "-movflags", "+faststart",
+                outputFile.getAbsolutePath()
+        );
+
+        try {
+            OutputHandler stdoutHandler = new EmptyHandler();
+            int exitCode = ShellExecutor.executeFFmpeg(command, stdoutHandler, stdoutHandler);
+            if (exitCode != 0) {
+                String errorMsg = String.format("exec command %s failed", command);
+                throw new RuntimeException(errorMsg);
+            }
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    public static void convertToWebVideoByGpu(File inputFile, File outputFile, double duration) {
+        List<String> command = Arrays.asList(
+                ffmpeg, "-y", "-hide_banner",
+                "-i", inputFile.getAbsolutePath(),
+                "-c:v", "h264_nvenc",
+                "-cq", "19",
+                "-preset", "slow",
+                "-pix_fmt", "yuv420p",
+                "-c:a", "aac",
+                "-b:a", "256k",
+                "-movflags", "+faststart",
+                outputFile.getAbsolutePath()
+        );
+
+        try {
+            OutputHandler stdoutHandler = new EmptyHandler();
+            OutputHandler stderrHandler = new ConvertVideoOutputHandler(duration);
+            int exitCode = ShellExecutor.executeFFmpeg(command, stdoutHandler, stderrHandler);
+            if (exitCode != 0) {
+                String errorMsg = String.format("exec command %s failed", command);
+                throw new RuntimeException(errorMsg);
+            }
+        } catch (Exception e) {
+            throw new RuntimeException(e);
         }
     }
 
