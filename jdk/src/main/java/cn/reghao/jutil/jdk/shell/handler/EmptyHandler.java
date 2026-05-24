@@ -7,5 +7,6 @@ package cn.reghao.jutil.jdk.shell.handler;
 public class EmptyHandler implements OutputHandler {
     @Override
     public void handle(String line) {
+        //System.out.println(line);
     }
 }

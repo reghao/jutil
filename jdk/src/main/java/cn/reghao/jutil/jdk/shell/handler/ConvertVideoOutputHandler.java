@@ -27,7 +27,7 @@ public class ConvertVideoOutputHandler implements OutputHandler {
             // 限制频率，防止每帧都发消息给前端（比如每增加 1% 发一次）
             //updateProgressToFrontend(videoId, percent);
         } else {
-            System.out.println(line);
+            //System.out.println(line);
         }
     }
 

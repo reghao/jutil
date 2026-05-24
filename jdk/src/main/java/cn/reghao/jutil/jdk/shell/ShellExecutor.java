@@ -22,66 +22,79 @@ public class ShellExecutor {
 
         StringBuilder stdout = new StringBuilder();
         StringBuilder stderr = new StringBuilder();
-        // 父进程使用两个线程分别读取子进程的 stdout 和 stderr, 也就是子进程会向父进程写数据
-        // FFmpeg 的日志输出在 stderr, Java 程序必须不断读取 process.getErrorStream(), 否则会导致缓冲区满造成进程挂起(Zombie Process)
-        try (ExecutorService executor = Executors.newFixedThreadPool(2)) {
+
+        // 使用简洁的线程池
+        ExecutorService executor = Executors.newFixedThreadPool(2);
+
+        // 专门为这个进程创建 ShutdownHook，以便后续注销
+        Thread hook = new Thread(() -> {
+            if (process.isAlive()) {
+                process.destroyForcibly();
+                System.out.println("JVM 退出，已清理残留的 FFmpeg 进程");
+            }
+        });
+        Runtime.getRuntime().addShutdownHook(hook);
+
+        try {
             executor.submit(() -> {
                 try (BufferedReader reader = new BufferedReader(new InputStreamReader(process.getInputStream()))) {
                     String line;
                     while ((line = reader.readLine()) != null) {
-                        //log.info("FFmpeg INFO: {}", line);
                         stdout.append(line).append(System.lineSeparator());
                         stdoutHandler.handle(line);
                     }
                 } catch (IOException e) {
-                    System.out.printf("读取标准流异常 %s\n", e);
+                    // 进程被强杀时此处抛异常是正常的，无需惊慌
+                    System.out.printf("读取标准流结束或异常: %s\n", e.getMessage());
                 }
             });
+
             executor.submit(() -> {
                 try (BufferedReader reader = new BufferedReader(new InputStreamReader(process.getErrorStream()))) {
                     String line;
-                    // BufferedReader 是同步阻塞式的
-                    // 有数据: 立即读取并返回
-                    // 没数据但流没关: 线程进入等待状态，让出 CPU 资源，直到操作系统通知有新数据到达
-                    // 流关闭时(子进程退出): readLine 返回 null, 此时阻塞解除
                     while ((line = reader.readLine()) != null) {
-                        //log.error("FFmpeg ERROR: {}", line);
                         stderr.append(line).append(System.lineSeparator());
                         stderrHandler.handle(line);
                     }
                 } catch (IOException e) {
-                    System.out.printf("读取错误流异常 %s\n", e);
+                    System.out.printf("读取错误流结束或异常: %s\n", e.getMessage());
                 }
             });
-            // 停止接收新任务，但会把已提交的任务执行完
-            // executor 默认创建的都是非守护
+
+            // 1. 停止接收新任务
             executor.shutdown();
 
-            // 执行 kill -9 会让操作系统直接从内存和 CPU 调度中抹除进程, JVM 进程还没来得及执行下一行指令就被杀死，所以 ShutdownHook 自然无法运行
-            // ShutdownHook 依赖于 JVM 接收到操作系统的信号后的内部处理机制
-            // 子进程默认情况下变成"孤儿进程", 它会立即被 1 号进程(init 或 systemd) 领养
-            // 如果子进程正通过 stdin/stdout 与父进程进行实时通信, 父进程被杀时 pipe 关闭, 子进程在下一次尝试向 pipe 写数据时会收到操作系统的 SIGPIPE 信号, 大多数程序在收到 SIGPIPE 时的默认行为是退出, 但如果子进程忽略了该信号或没有写操作那它依然会继续运行
-            // 如果子进程只是在读，那么它收不到 SIGPIPE 信号, 当子进程尝试从 pipe 读取数据, 而写入端(父进程)被关闭时, 读操作会立即返回 0(表示 EOF, 文件结束符), 读取到 EOF 的结果取决于子进程的代码逻辑
-            // 注册钩子：当 JVM 退出时执行
-            Runtime.getRuntime().addShutdownHook(new Thread(() -> {
-                if (process.isAlive()) {
-                    process.destroyForcibly();
-                    System.out.println("JVM 退出，已清理残留的 FFmpeg 进程");
-                }
-            }));
-
-            // 1. 设置强制超时，防止 FFmpeg 陷入无限循环
-            if (!process.waitFor(10, TimeUnit.MINUTES)) {
-                // 超过 2 小时还没转完，直接干掉
+            // 2. 设置足够长的超时时间（修改为 2 小时，匹配你的注释）
+            if (!process.waitFor(60, TimeUnit.MINUTES)) {
+                System.err.println("FFmpeg 进程执行超过 60 分钟，强制结束进程...");
                 process.destroyForcibly();
+                process.descendants().forEach(ProcessHandle::destroyForcibly);
             }
-            // 2. 确保 Java 退出时，FFmpeg 也跟着死
-            process.descendants().forEach(ProcessHandle::destroyForcibly);
-            // 3. 等待进程结束
+
+            // 3. 核心修改：必须等待流读取线程彻底执行完毕，再放行
+            // 这样可以确保 stdout/stderr 的数据完整，且不会触发线程中断异常
+            if (!executor.awaitTermination(10, TimeUnit.SECONDS)) {
+                executor.shutdownNow();
+            }
+
             int exitCode = process.waitFor();
 
-            ShellResult shellResult = new ShellResult(exitCode, stdout.toString(), stderr.toString());
+            // 可以在这里打印或处理 shellResult
+            // ShellResult shellResult = new ShellResult(exitCode, stdout.toString(), stderr.toString());
+
             return exitCode;
+
+        } finally {
+            // 4. 核心修改：无论成功还是异常，一定要移除当前 Hook，防止内存泄漏！
+            try {
+                Runtime.getRuntime().removeShutdownHook(hook);
+            } catch (IllegalStateException e) {
+                // JVM 已经开始关闭时卸载 Hook 会抛此异常，直接忽略即可
+            }
+            // 确保线程池最终关闭
+            if (!executor.isTerminated()) {
+                executor.shutdownNow();
+            }
         }
     }
 

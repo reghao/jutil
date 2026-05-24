@@ -1,12 +1,15 @@
 package cn.reghao.jutil.jdk.media.model;
 
+import java.io.Serializable;
 import java.time.LocalDateTime;
 
 /**
  * @author reghao
  * @date 2023-03-28 10:07:59
  */
-public class MediaProps {
+public class MediaProps implements Serializable {
+    private static final long serialVersionUID = 1L;
+
     private AudioProps audioProps;
     private VideoProps videoProps;
     private String formatName;

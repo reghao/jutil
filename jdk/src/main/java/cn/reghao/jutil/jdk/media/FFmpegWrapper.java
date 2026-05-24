@@ -167,7 +167,7 @@ public class FFmpegWrapper {
         }
     }
 
-    public static void checkVideo(File inputFile) {
+    public static void checkVideoContent(File inputFile) {
         List<String> command = Arrays.asList(
                 ffmpeg, "-v", "error",
                 "-i", inputFile.getAbsolutePath(),
@@ -443,6 +443,89 @@ public class FFmpegWrapper {
             }
         } catch (Exception e) {
             throw new RuntimeException(e);
+        }
+    }
+
+    public static List<Double> getSceneTimestamps(String videoPath) throws Exception {
+        List<Double> timestamps = new ArrayList<>();
+        timestamps.add(0.0); // 默认从0秒开始
+
+        int threshold = 20;
+        // 使用 scdet 滤镜，并将信息输出到 stdout/stderr
+        List<String> cmd = Arrays.asList(
+                ffmpeg, "-i", videoPath,
+                "-vf", "scdet=threshold=" + threshold,
+                "-f", "null", "-"
+        );
+        ProcessBuilder pb = new ProcessBuilder(cmd);
+        Process process = pb.start();
+        // 读取日志流
+        BufferedReader reader = new BufferedReader(new InputStreamReader(process.getErrorStream()));
+        String line;
+        while ((line = reader.readLine()) != null) {
+            // 匹配日志行：[parsed_scdet_0 @ 0x...] lavfi.scd.time: 12.456
+            // 在异步读取日志时，正则匹配 "lavfi.scd.time: ([0-9.]+)"
+            // 提取出来的 time 就是场景切换的具体秒数
+            if (line.contains("lavfi.scd.time:")) {
+                String timeStr = line.substring(line.lastIndexOf(":") + 1).trim();
+                timestamps.add(Double.parseDouble(timeStr));
+            }
+        }
+        process.waitFor();
+        return timestamps;
+    }
+
+    public static void splitByScenes(String input, List<Double> points) {
+        File file = new File(input);
+        String parentPath = file.getParent();
+        String filename = file.getName();
+        MediaProps mediaProps = getMediaProps(input);
+        double total = mediaProps.getVideoProps().getDuration();
+        for (int i = 0; i < points.size(); i++) {
+            double start = points.get(i);
+            double total0 = 0.0;
+            if (i+1 == points.size()) {
+                total0 = total - start;
+            } else {
+                total0 = points.get(i+1) - start;
+            }
+            // 如果是最后一段，时长由 ffprobe 获取的总长度决定，这里简化演示
+            double duration = (i < points.size() - 1) ? (points.get(i + 1) - start) : -1;
+
+            String output = String.format("%s/%s_part%s.mp4", parentPath, filename, i);
+            // 构造精准剪切命令
+            List<String> command = new ArrayList<>(Arrays.asList(
+                    ffmpeg, "-hide_banner", "-y",
+                    "-hwaccel", "cuda",
+                    "-ss", String.valueOf(start),
+                    "-i", input
+            ));
+            if (duration != -1) {
+                command.add("-t");
+                command.add(String.valueOf(duration));
+            }
+            command.addAll(Arrays.asList(
+                    "-c:v", "h264_nvenc",
+                    "-cq", "19",
+                    "-preset", "slow",
+                    "-pix_fmt", "yuv420p",
+                    "-c:a", "aac",
+                    "-b:a", "256k",
+                    "-movflags", "+faststart",
+                    output
+            ));
+
+            try {
+                OutputHandler stdoutHandler = new EmptyHandler();
+                OutputHandler stderrHandler = new ConvertVideoOutputHandler(total0);
+                int exitCode = ShellExecutor.executeFFmpeg(command, stdoutHandler, stderrHandler);
+                if (exitCode != 0) {
+                    String errorMsg = String.format("exec command %s failed", command);
+                    throw new RuntimeException(errorMsg);
+                }
+            } catch (Exception e) {
+                throw new RuntimeException(e);
+            }
         }
     }
 

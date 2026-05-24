@@ -1,10 +1,14 @@
 package cn.reghao.jutil.jdk.media.model;
 
+import java.io.Serializable;
+
 /**
  * @author reghao
  * @date 2023-03-28 10:07:53
  */
-public class VideoProps {
+public class VideoProps implements Serializable {
+    private static final long serialVersionUID = 1L;
+
     private String codecName;
     private String codecTagString;
     private long bitRate;

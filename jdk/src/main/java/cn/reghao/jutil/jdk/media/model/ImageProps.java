@@ -1,10 +1,14 @@
 package cn.reghao.jutil.jdk.media.model;
 
+import java.io.Serializable;
+
 /**
  * @author reghao
  * @date 2025-10-27 10:25:45
  */
-public class ImageProps {
+public class ImageProps implements Serializable {
+    private static final long serialVersionUID = 1L;
+
     private int width;
     private int height;
     private String format;
