@@ -2,7 +2,6 @@ package cn.reghao.jutil.jdk.media;
 
 import cn.reghao.jutil.jdk.converter.DateTimeConverter;
 import cn.reghao.jutil.jdk.media.model.WebVideoCheck;
-import cn.reghao.jutil.jdk.serializer.JsonConverter;
 import cn.reghao.jutil.jdk.media.model.AudioProps;
 import cn.reghao.jutil.jdk.media.model.MediaProps;
 import cn.reghao.jutil.jdk.media.model.VideoProps;
@@ -18,11 +17,8 @@ import com.google.gson.*;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.InputStreamReader;
-import java.time.Duration;
 import java.time.LocalDateTime;
 import java.util.*;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 /**
  * @author reghao
@@ -62,116 +58,121 @@ public class FFmpegWrapper {
                 throw new RuntimeException("FFprobe 解析失败，退出码: " + exitCode);
             }
 
-            JsonObject jsonObject = JsonParser.parseString(jsonOutput.toString()).getAsJsonObject();
-            JsonArray streams = jsonObject.get("streams").getAsJsonArray();
-            AudioProps audioProps = null;
-            VideoProps videoProps = null;
-            for (JsonElement jsonElement : streams) {
-                JsonObject jsonObject1 = jsonElement.getAsJsonObject();
-                String codecType = jsonObject1.get("codec_type").getAsString();
-                if (codecType.equals("audio")) {
-                    String codecName = jsonObject1.get("codec_name").getAsString();
-                    String codecTagString = jsonObject1.get("codec_tag_string").getAsString();
-
-                    JsonElement bitRateElement = jsonObject1.get("bit_rate");
-                    long bitRate;
-                    if (bitRateElement == null) {
-                        bitRate = 0L;
-                    } else {
-                        bitRate = bitRateElement.getAsLong();
-                    }
-
-                    JsonElement durationElement = jsonObject1.get("duration");
-                    double duration;
-                    if (durationElement == null) {
-                        duration = 0;
-                    } else {
-                        duration = durationElement.getAsDouble();
-                    }
-                    audioProps = new AudioProps(codecName, codecTagString, bitRate, duration);
-                } else if (codecType.equals("video")) {
-                    if (videoProps != null) {
-                        continue;
-                    }
-
-                    String codecName = jsonObject1.get("codec_name").getAsString();
-                    String codecTagString = jsonObject1.get("codec_tag_string").getAsString();
-                    String pixFmt = jsonObject1.get("pix_fmt").getAsString();
-
-                    long bitRate;
-                    JsonElement biteRateElement = jsonObject1.get("bit_rate");
-                    if (biteRateElement == null) {
-                        bitRate = 0;
-                    } else {
-                        bitRate = biteRateElement.getAsLong();
-                    }
-
-                    double duration;
-                    JsonElement durationElement = jsonObject1.get("duration");
-                    if (durationElement == null) {
-                        duration = 0;
-                    } else {
-                        duration = durationElement.getAsDouble();
-                    }
-
-                    double codedWidth = jsonObject1.get("coded_width").getAsDouble();
-                    double codedHeight = jsonObject1.get("coded_height").getAsDouble();
-                    videoProps = new VideoProps(codecName, codecTagString, bitRate, duration, codedWidth, codedHeight, pixFmt);
-                }
-            }
-
-            JsonObject format = jsonObject.get("format").getAsJsonObject();
-            if (videoProps != null) {
-                if (format.get("duration") != null) {
-                    Double duration = format.get("duration").getAsDouble();
-                    videoProps.setDuration(duration);
-                }
-
-                Long size = format.get("size").getAsLong();
-                if (format.get("bit_rate") != null) {
-                    long bitRate = format.get("bit_rate").getAsLong();
-                    if (videoProps.getBitRate() == 0) {
-                        videoProps.setBitRate(bitRate);
-                    }
-                }
-            }
-
-            MediaProps mediaProps = new MediaProps(audioProps, videoProps);
-            if (format.get("format_name") != null) {
-                String formatName = format.get("format_name").getAsString();
-                mediaProps.setFormatName(formatName);
-            }
-
-            if (format.get("format_long_name") != null) {
-                String formatLongName = format.get("format_long_name").getAsString();
-                mediaProps.setFormatLongName(formatLongName);
-            }
-
-            if (format.get("tags") != null && format.get("tags").getAsJsonObject().get("major_brand") != null) {
-                String majorBrand = format.get("tags").getAsJsonObject().get("major_brand").getAsString();
-                mediaProps.setMajorBrand(majorBrand);
-            }
-
-            if (format.get("start_time") != null) {
-                double startTime = format.get("start_time").getAsDouble();
-                mediaProps.setStartTime(startTime);
-            }
-
-            // Metadata
-            JsonElement tagsElement = format.get("tags");
-            if (tagsElement != null) {
-                JsonObject tags = tagsElement.getAsJsonObject();
-                JsonElement jsonElement = tags.get("creation_time");
-                if (jsonElement != null) {
-                    String creationTime = jsonElement.getAsString();
-                    LocalDateTime localDateTime = DateTimeConverter.localDateTime(creationTime);
-                    mediaProps.setCreateTime(localDateTime);
-                }
-            }
-            return mediaProps;
+            String json = jsonOutput.toString();
+            return parseAndGetMediaProps(json);
         } catch (Exception e) {
             throw new RuntimeException(e.getMessage());
         }
+    }
+
+    public static MediaProps parseAndGetMediaProps(String json) {
+        JsonObject jsonObject = JsonParser.parseString(json).getAsJsonObject();
+        JsonArray streams = jsonObject.get("streams").getAsJsonArray();
+        AudioProps audioProps = null;
+        VideoProps videoProps = null;
+        for (JsonElement jsonElement : streams) {
+            JsonObject jsonObject1 = jsonElement.getAsJsonObject();
+            String codecType = jsonObject1.get("codec_type").getAsString();
+            if (codecType.equals("audio")) {
+                String codecName = jsonObject1.get("codec_name").getAsString();
+                String codecTagString = jsonObject1.get("codec_tag_string").getAsString();
+
+                JsonElement bitRateElement = jsonObject1.get("bit_rate");
+                long bitRate;
+                if (bitRateElement == null) {
+                    bitRate = 0L;
+                } else {
+                    bitRate = bitRateElement.getAsLong();
+                }
+
+                JsonElement durationElement = jsonObject1.get("duration");
+                double duration;
+                if (durationElement == null) {
+                    duration = 0;
+                } else {
+                    duration = durationElement.getAsDouble();
+                }
+                audioProps = new AudioProps(codecName, codecTagString, bitRate, duration);
+            } else if (codecType.equals("video")) {
+                if (videoProps != null) {
+                    continue;
+                }
+
+                String codecName = jsonObject1.get("codec_name").getAsString();
+                String codecTagString = jsonObject1.get("codec_tag_string").getAsString();
+                String pixFmt = jsonObject1.get("pix_fmt").getAsString();
+
+                long bitRate;
+                JsonElement biteRateElement = jsonObject1.get("bit_rate");
+                if (biteRateElement == null) {
+                    bitRate = 0;
+                } else {
+                    bitRate = biteRateElement.getAsLong();
+                }
+
+                double duration;
+                JsonElement durationElement = jsonObject1.get("duration");
+                if (durationElement == null) {
+                    duration = 0;
+                } else {
+                    duration = durationElement.getAsDouble();
+                }
+
+                double codedWidth = jsonObject1.get("coded_width").getAsDouble();
+                double codedHeight = jsonObject1.get("coded_height").getAsDouble();
+                videoProps = new VideoProps(codecName, codecTagString, bitRate, duration, codedWidth, codedHeight, pixFmt);
+            }
+        }
+
+        JsonObject format = jsonObject.get("format").getAsJsonObject();
+        if (videoProps != null) {
+            if (format.get("duration") != null) {
+                Double duration = format.get("duration").getAsDouble();
+                videoProps.setDuration(duration);
+            }
+
+            Long size = format.get("size").getAsLong();
+            if (format.get("bit_rate") != null) {
+                long bitRate = format.get("bit_rate").getAsLong();
+                if (videoProps.getBitRate() == 0) {
+                    videoProps.setBitRate(bitRate);
+                }
+            }
+        }
+
+        MediaProps mediaProps = new MediaProps(audioProps, videoProps);
+        if (format.get("format_name") != null) {
+            String formatName = format.get("format_name").getAsString();
+            mediaProps.setFormatName(formatName);
+        }
+
+        if (format.get("format_long_name") != null) {
+            String formatLongName = format.get("format_long_name").getAsString();
+            mediaProps.setFormatLongName(formatLongName);
+        }
+
+        if (format.get("tags") != null && format.get("tags").getAsJsonObject().get("major_brand") != null) {
+            String majorBrand = format.get("tags").getAsJsonObject().get("major_brand").getAsString();
+            mediaProps.setMajorBrand(majorBrand);
+        }
+
+        if (format.get("start_time") != null) {
+            double startTime = format.get("start_time").getAsDouble();
+            mediaProps.setStartTime(startTime);
+        }
+
+        // Metadata
+        JsonElement tagsElement = format.get("tags");
+        if (tagsElement != null) {
+            JsonObject tags = tagsElement.getAsJsonObject();
+            JsonElement jsonElement = tags.get("creation_time");
+            if (jsonElement != null) {
+                String creationTime = jsonElement.getAsString();
+                LocalDateTime localDateTime = DateTimeConverter.localDateTime(creationTime);
+                mediaProps.setCreateTime(localDateTime);
+            }
+        }
+        return mediaProps;
     }
 
     public static void checkVideoContent(File inputFile) {
