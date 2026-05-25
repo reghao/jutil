@@ -187,7 +187,10 @@ public class FFmpegWrapper {
             if (shellResult.getExitCode() != 0) {
                 throw new RuntimeException("exec failed");
             } else if (!shellResult.getStdout().isEmpty() || !shellResult.getStderr().isEmpty()) {
-                String errorMsg = String.format("video %s invalid", inputFile.getAbsolutePath());
+                String stdout = shellResult.getStdout();
+                String stderr = shellResult.getStderr();
+                String errorMsg = String.format("video %s invalid\nstdout: %s\nstderr: %s\n",
+                        inputFile.getAbsolutePath(), stdout, stderr);
                 throw new RuntimeException(errorMsg);
             }
         } catch (Exception e) {
