@@ -61,7 +61,8 @@ public class FFmpegWrapper {
             String json = jsonOutput.toString();
             return parseAndGetMediaProps(json);
         } catch (Exception e) {
-            throw new RuntimeException(e.getMessage());
+            String errorMsg = String.format("%s\n%s", cmd, e.getMessage());
+            throw new RuntimeException(errorMsg);
         }
     }
 
@@ -74,6 +75,10 @@ public class FFmpegWrapper {
             JsonObject jsonObject1 = jsonElement.getAsJsonObject();
             String codecType = jsonObject1.get("codec_type").getAsString();
             if (codecType.equals("audio")) {
+                if (jsonObject1.get("codec_name") == null) {
+                    continue;
+                }
+
                 String codecName = jsonObject1.get("codec_name").getAsString();
                 String codecTagString = jsonObject1.get("codec_tag_string").getAsString();
 
@@ -185,8 +190,6 @@ public class FFmpegWrapper {
         try {
             ShellResult shellResult = ShellExecutor.executeWithResult(command);
             if (shellResult.getExitCode() != 0) {
-                throw new RuntimeException("exec failed");
-            } else if (!shellResult.getStdout().isEmpty() || !shellResult.getStderr().isEmpty()) {
                 String stdout = shellResult.getStdout();
                 String stderr = shellResult.getStderr();
                 String errorMsg = String.format("video %s invalid\nstdout: %s\nstderr: %s\n",
@@ -645,6 +648,20 @@ public class FFmpegWrapper {
 
     public static void convertToWebVideoByGpu(File inputFile, File outputFile, double duration) {
         List<String> command = Arrays.asList(
+                ffmpeg, "-y", "-hide_banner",
+                "-i", inputFile.getAbsolutePath(),
+                "-c:v", "h264_nvenc",
+                "-profile:v", "high",
+                "-pix_fmt", "yuv420p",
+                "-rc", "constqp",
+                "-cq", "19",
+                "-c:a", "aac",
+                "-b:a", "256k",
+                "-movflags", "+faststart",
+                outputFile.getAbsolutePath()
+        );
+
+        List<String> command0 = Arrays.asList(
                 ffmpeg, "-y", "-hide_banner",
                 "-i", inputFile.getAbsolutePath(),
                 "-c:v", "h264_nvenc",
