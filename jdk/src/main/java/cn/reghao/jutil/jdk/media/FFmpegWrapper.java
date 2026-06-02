@@ -105,7 +105,10 @@ public class FFmpegWrapper {
 
                 String codecName = jsonObject1.get("codec_name").getAsString();
                 String codecTagString = jsonObject1.get("codec_tag_string").getAsString();
-                String pixFmt = jsonObject1.get("pix_fmt").getAsString();
+                String pixFmt = "";
+                if (jsonObject1.get("pix_fmt") != null) {
+                    pixFmt = jsonObject1.get("pix_fmt").getAsString();
+                }
 
                 long bitRate;
                 JsonElement biteRateElement = jsonObject1.get("bit_rate");
@@ -278,7 +281,7 @@ public class FFmpegWrapper {
             }
             process.waitFor();
         } catch (Exception e) {
-            e.printStackTrace();
+            System.out.println(e.getMessage());
         }
         return output;
     }
