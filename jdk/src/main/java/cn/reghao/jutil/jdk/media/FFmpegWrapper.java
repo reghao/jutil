@@ -200,7 +200,8 @@ public class FFmpegWrapper {
                 throw new RuntimeException(errorMsg);
             }
         } catch (Exception e) {
-            throw new RuntimeException(e);
+            String errorMsg = String.format("exec command %s throw exception, error message: %s", command, e.getMessage());
+            throw new RuntimeException(errorMsg);
         }
     }
 
@@ -328,7 +329,8 @@ public class FFmpegWrapper {
                     shellResult.getStderr();
             throw new RuntimeException(errorMsg);
         } catch (Exception e) {
-            throw new RuntimeException(e);
+            String errorMsg = String.format("exec command %s throw exception, error message: %s", command, e.getMessage());
+            throw new RuntimeException(errorMsg);
         }
     }
 
@@ -364,7 +366,8 @@ public class FFmpegWrapper {
                     .replace("\"", "");
             keyFrameCount = Integer.parseInt(totalStr);
         } catch (Exception e) {
-            throw new RuntimeException(e);
+            String errorMsg = String.format("exec command %s throw exception, error message: %s", command0, e.getMessage());
+            throw new RuntimeException(errorMsg);
         }
 
         String videoPath = videoFile.getAbsolutePath();
@@ -470,7 +473,8 @@ public class FFmpegWrapper {
                     shellResult.getStderr();
             throw new RuntimeException(errorMsg);
         } catch (Exception e) {
-            throw new RuntimeException(e);
+            String errorMsg = String.format("exec command %s throw exception, error message: %s", command, e.getMessage());
+            throw new RuntimeException(errorMsg);
         }
     }
 
@@ -541,7 +545,8 @@ public class FFmpegWrapper {
                 throw new RuntimeException("convert video failed...");
             }
         } catch (Exception e) {
-            throw new RuntimeException(e);
+            String errorMsg = String.format("exec command %s throw exception, error message: %s", command, e.getMessage());
+            throw new RuntimeException(errorMsg);
         }
     }
 
@@ -623,7 +628,8 @@ public class FFmpegWrapper {
                     throw new RuntimeException(errorMsg);
                 }
             } catch (Exception e) {
-                throw new RuntimeException(e);
+                String errorMsg = String.format("exec command %s throw exception, error message: %s", command, e.getMessage());
+                throw new RuntimeException(errorMsg);
             }
         }
     }
@@ -645,7 +651,8 @@ public class FFmpegWrapper {
                 throw new RuntimeException(errorMsg);
             }
         } catch (Exception e) {
-            throw new RuntimeException(e);
+            String errorMsg = String.format("exec command %s throw exception, error message: %s", command, e.getMessage());
+            throw new RuntimeException(errorMsg);
         }
     }
 
@@ -686,7 +693,37 @@ public class FFmpegWrapper {
                 throw new RuntimeException(errorMsg);
             }
         } catch (Exception e) {
-            throw new RuntimeException(e);
+            String errorMsg = String.format("exec command %s throw exception, error message: %s", command, e.getMessage());
+            throw new RuntimeException(errorMsg);
+        }
+    }
+
+    // 转码监控视频
+    public static void convertToWebVideoByGpu0(File inputFile, File outputFile, double duration) {
+        List<String> command = Arrays.asList(
+                ffmpeg, "-hwaccel", "cuda",
+                "-i", inputFile.getAbsolutePath(),
+                "-c:v", "h264_nvenc",
+                "-cq", "26",
+                "-preset", "slow",
+                "-pix_fmt", "yuv420p",
+                "-movflags", "+faststart",
+                "-c:a", "aac",
+                "-b:a", "64k",
+                outputFile.getAbsolutePath()
+        );
+
+        try {
+            OutputHandler stdoutHandler = new EmptyHandler();
+            OutputHandler stderrHandler = new ConvertVideoOutputHandler(duration);
+            int exitCode = ShellExecutor.executeFFmpeg(command, stdoutHandler, stderrHandler);
+            if (exitCode != 0) {
+                String errorMsg = String.format("exec command %s failed", command);
+                throw new RuntimeException(errorMsg);
+            }
+        } catch (Exception e) {
+            String errorMsg = String.format("exec command %s throw exception, error message: %s", command, e.getMessage());
+            throw new RuntimeException(errorMsg);
         }
     }
 
