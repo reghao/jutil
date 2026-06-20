@@ -660,9 +660,13 @@ public class FFmpegWrapper {
         List<String> command = Arrays.asList(
                 ffmpeg, "-y", "-hide_banner",
                 "-i", inputFile.getAbsolutePath(),
+                // 使用 scale 滤镜将输入的 pc 范围强制转为 tv 范围，并指定输出格式为 yuv420p
+                "-vf", "scale=in_range=pc:out_range=tv,format=yuv420p",
                 "-c:v", "h264_nvenc",
                 "-profile:v", "high",
                 "-pix_fmt", "yuv420p",
+                // 显式设置颜色范围元数据为 limited (tv)，防止播放器误判
+                "-color_range", "tv",
                 "-rc", "constqp",
                 "-cq", "19",
                 "-c:a", "aac",
