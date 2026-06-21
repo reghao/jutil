@@ -228,6 +228,8 @@ public class FFmpegWrapper {
             if ("aac".equals(acodec) || "opus".equals(acodec) || "mp3".equals(acodec)) {
                 webVideoCheck.setAcodec(true);
             }
+        } else {
+            webVideoCheck.setAcodec(true);
         }
 
         String majorBrand = mediaProps.getMajorBrand();
