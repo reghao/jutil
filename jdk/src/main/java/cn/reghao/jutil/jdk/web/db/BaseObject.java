@@ -54,4 +54,17 @@ public class BaseObject<T> implements Serializable {
     public void setUpdateTime(LocalDateTime updateTime) {
         this.updateTime = updateTime;
     }
+
+    public void setNull() {
+        this.id = null;
+        this.deleted = null;
+        this.createTime = null;
+        this.updateTime = null;
+    }
+
+    public void setNullExcludeId() {
+        this.deleted = null;
+        this.createTime = null;
+        this.updateTime = null;
+    }
 }
