@@ -2,6 +2,7 @@ package cn.reghao.jutil.jdk.http;
 
 import cn.reghao.jutil.jdk.http.util.UserAgents;
 
+import java.io.ByteArrayOutputStream;
 import java.io.InputStream;
 import java.net.CookieManager;
 import java.net.CookiePolicy;
@@ -10,12 +11,15 @@ import java.net.URI;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
 import java.time.Duration;
 import java.util.Map;
+import java.util.Optional;
+import java.util.zip.GZIPInputStream;
 
 /**
  * @author reghao
@@ -89,11 +93,38 @@ public class WebClient implements WebRequest {
         HttpRequest request = HttpRequest.newBuilder()
                 .uri(URI.create(url))
                 .header("User-Agent", UserAgents.getDesktopAgent())
+                .header("Accept-Encoding", "gzip") // 显式声明支持 gzip
                 .timeout(Duration.ofSeconds(timeout))
                 .build();
+
         try {
-            HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
-            return WebResponse.of(response);
+            // 1. 先用 InputStream 获取原始流
+            HttpResponse<InputStream> response = this.client.send(request, HttpResponse.BodyHandlers.ofInputStream());
+
+            // 2. 检查响应头是否进行了 gzip 压缩
+            Optional<String> encoding = response.headers().firstValue("Content-Encoding");
+            InputStream is = response.body();
+            if (encoding.isPresent() && encoding.get().equalsIgnoreCase("gzip")) {
+                is = new GZIPInputStream(is); // 解压 gzip
+            }
+
+            // 3. 将流读取为字节数组
+            byte[] bytes;
+            try (InputStream input = is; ByteArrayOutputStream bos = new ByteArrayOutputStream()) {
+                byte[] buffer = new byte[4096];
+                int len;
+                while ((len = input.read(buffer)) != -1) {
+                    bos.write(buffer, 0, len);
+                }
+                bytes = bos.toByteArray();
+            }
+
+            // 4. 根据 Content-Type 里的 charset（这里是 utf-8）解码
+            // 也可以直接用 StandardCharsets.UTF_8，因为你的接口指定了 utf-8
+            String bodyText = new String(bytes, StandardCharsets.UTF_8);
+
+            // 5. 组装返回（请根据你的 WebResponse 构造函数自行调整）
+            return new WebResponse(response.statusCode(), bodyText);
         } catch (Exception e) {
             return WebResponse.error(e.getMessage());
         }
