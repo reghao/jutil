@@ -658,7 +658,48 @@ public class FFmpegWrapper {
         }
     }
 
-    public static void convertToWebVideoByGpu(File inputFile, File outputFile, double duration) {
+    // cpu 转码, gop 5s
+    public static void convertToWebVideo(File inputFile, File outputFile, double duration) {
+        List<String> command = Arrays.asList(
+                ffmpeg, "-y", "-hide_banner",
+                "-i", inputFile.getAbsolutePath(),
+                "-vf", "scale=in_range=pc:out_range=tv,format=yuv420p",
+                "-c:v", "libx264",
+                "-profile:v", "high",
+                "-preset", "medium",
+                // --- 画质设置：视觉无损核心参数 ---
+                "-crf", "17",                                  // 设为 17 或 18，实现肉眼无损
+                "-maxrate", "50M",                             // 设定码率上限，防止复杂画面下码率过高
+                "-bufsize", "100M",
+                // --- GOP 5秒 核心参数 ---
+                "-force_key_frames", "expr:gte(t,n_forced*5)",
+                "-sc_threshold", "0",
+
+                "-pix_fmt", "yuv420p",
+                "-color_range", "tv",
+                "-color_primaries", "bt709",
+                "-color_trc", "bt709",
+                "-colorspace", "bt709",
+                "-c:a", "copy",                                // 音频直接复制，100% 绝对无损
+                "-movflags", "+faststart",
+                outputFile.getAbsolutePath()
+        );
+
+        try {
+            OutputHandler stdoutHandler = new EmptyHandler();
+            OutputHandler stderrHandler = new ConvertVideoOutputHandler(duration);
+            int exitCode = ShellExecutor.executeFFmpeg(command, stdoutHandler, stderrHandler);
+            if (exitCode != 0) {
+                String errorMsg = String.format("exec command %s failed", command);
+                throw new RuntimeException(errorMsg);
+            }
+        } catch (Exception e) {
+            String errorMsg = String.format("exec command %s throw exception, error message: %s", command, e.getMessage());
+            throw new RuntimeException(errorMsg);
+        }
+    }
+
+    public static void convertToWebVideoByCuda(File inputFile, File outputFile, double duration) {
         List<String> command = Arrays.asList(
                 ffmpeg, "-y", "-hide_banner",
                 "-i", inputFile.getAbsolutePath(),
@@ -671,19 +712,6 @@ public class FFmpegWrapper {
                 "-color_range", "tv",
                 "-rc", "constqp",
                 "-cq", "19",
-                "-c:a", "aac",
-                "-b:a", "256k",
-                "-movflags", "+faststart",
-                outputFile.getAbsolutePath()
-        );
-
-        List<String> command0 = Arrays.asList(
-                ffmpeg, "-y", "-hide_banner",
-                "-i", inputFile.getAbsolutePath(),
-                "-c:v", "h264_nvenc",
-                "-cq", "19",
-                "-preset", "slow",
-                "-pix_fmt", "yuv420p",
                 "-c:a", "aac",
                 "-b:a", "256k",
                 "-movflags", "+faststart",
@@ -705,17 +733,25 @@ public class FFmpegWrapper {
     }
 
     // 转码监控视频
-    public static void convertToWebVideoByGpu0(File inputFile, File outputFile, double duration) {
+    public static void convertFlvToWebVideo(File inputFile, File outputFile, double duration) {
         List<String> command = Arrays.asList(
-                ffmpeg, "-hwaccel", "cuda",
+                ffmpeg, "-y",
+                "-hwaccel", "cuda",
                 "-i", inputFile.getAbsolutePath(),
                 "-c:v", "h264_nvenc",
-                "-cq", "26",
-                "-preset", "slow",
+                "-preset", "p6",
+                "-rc", "vbr",
+                "-cq", "32",
+                "-qmin", "30",
+                "-g", "125",
+                "-keyint_min", "125",
+                "-no-scenecut", "1",
+                "-bf", "3",
+                "-b_ref_mode", "middle",
                 "-pix_fmt", "yuv420p",
                 "-movflags", "+faststart",
-                "-c:a", "aac",
-                "-b:a", "64k",
+                "-c:a", "copy",
+                "-f", "mp4",
                 outputFile.getAbsolutePath()
         );
 
