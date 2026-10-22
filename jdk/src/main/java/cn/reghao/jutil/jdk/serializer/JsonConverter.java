@@ -8,6 +8,7 @@ import com.google.gson.stream.JsonWriter;
 
 import java.io.*;
 import java.lang.reflect.Type;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
@@ -53,6 +54,7 @@ public class JsonConverter {
     private static final Gson gson = new GsonBuilder()
             .disableHtmlEscaping()
             .registerTypeAdapter(LocalDateTime.class, new LocalDateTimeAdapter())
+            .registerTypeAdapter(LocalDate.class, new LocalDateAdapter())
             .registerTypeAdapter(Boolean.class, booleanAsIntAdapter)
             .registerTypeAdapter(boolean.class, booleanAsIntAdapter)
             .create();
