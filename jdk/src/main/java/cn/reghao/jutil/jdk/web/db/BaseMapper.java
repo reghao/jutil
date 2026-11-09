@@ -14,6 +14,6 @@ public interface BaseMapper<T> {
 
     int count();
     List<T> findAll();
-    List<T> findAllByPage(int page, int size);
+    List<T> findAllByPage(Page page);
     T findById(int id);
 }

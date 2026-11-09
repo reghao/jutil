@@ -103,7 +103,7 @@ public class PageList<T> implements Serializable {
         return pageSize;
     }
 
-    public long getTotalSize() {
+    public int getTotalSize() {
         return totalSize;
     }
 
