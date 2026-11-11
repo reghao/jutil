@@ -249,4 +249,20 @@ public class DateTimeConverter {
         }
         return res;
     }
+
+    /**
+     * @param dateTime yyyy-mm-dd hh:mm:ss 格式的字符串
+     * @return ms 时间戳
+     * @date 2026-11-11 13:08:03
+     */
+    public static long toTimestamp(String dateTime) {
+        try {
+            SimpleDateFormat dateFormat = new SimpleDateFormat(dateTimePattern);
+            Date date = dateFormat.parse(dateTime);
+            Instant instant = date.toInstant();
+            return instant.toEpochMilli();
+        } catch (Exception ignore) {
+        }
+        return 0L;
+    }
 }
