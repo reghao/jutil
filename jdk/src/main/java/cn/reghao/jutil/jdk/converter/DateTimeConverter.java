@@ -6,6 +6,7 @@ import java.time.*;
 import java.time.format.DateTimeFormatter;
 import java.util.Date;
 import java.util.Locale;
+import java.util.Objects;
 
 /**
  * 时间日期字符串格式转换器
@@ -264,5 +265,30 @@ public class DateTimeConverter {
         } catch (Exception ignore) {
         }
         return 0L;
+    }
+
+    /**
+     * 使用系统默认时区转换
+     */
+    public static LocalDateTime toLocalDateTime(Date date) {
+        if (date == null) {
+            return null;
+        }
+        return date.toInstant()
+                .atZone(ZoneId.systemDefault())
+                .toLocalDateTime();
+    }
+
+    /**
+     * 指定时区转换（推荐跨时区或容器/服务器时区不确定时使用）
+     */
+    public static LocalDateTime toLocalDateTime(Date date, ZoneId zoneId) {
+        if (date == null) {
+            return null;
+        }
+        ZoneId targetZone = Objects.requireNonNullElse(zoneId, ZoneId.systemDefault());
+        return date.toInstant()
+                .atZone(targetZone)
+                .toLocalDateTime();
     }
 }
