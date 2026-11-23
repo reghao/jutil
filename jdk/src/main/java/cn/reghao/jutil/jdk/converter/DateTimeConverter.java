@@ -291,4 +291,16 @@ public class DateTimeConverter {
                 .atZone(targetZone)
                 .toLocalDateTime();
     }
+
+    /**
+     * @param dateTime 2023-11-06T10:38:00Z 格式字符串
+     * @return
+     * @date 2026-11-23 10:11:41
+     */
+    public static LocalDateTime toLocalDateTime(String dateTime) {
+        // 1. 解析为 UTC 时间点 Instant
+        Instant instant = Instant.parse(dateTime);
+        LocalDateTime systemLocal = LocalDateTime.ofInstant(instant, ZoneId.systemDefault());
+        return systemLocal;
+    }
 }
